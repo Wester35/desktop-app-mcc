@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Authorization</class>
+ <widget class="QWidget" name="Authorization">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>401</width>
+    <height>501</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>401</width>
+    <height>501</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>501</width>
+    <height>501</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Authorization</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">*
+{
+	font-family:sans-serif;
+	font-size:24px;
+}
+
+#frame
+{
+	background:#333;
+	border-radius:22px;
+}
+
+#frame_2
+{
+	background:url(C:\Users\Wester35\Downloads\sgustok_fraktal_sirenevyj_132619_1600x1200.jpg);
+	border-radius:10px;
+}
+
+#pushButton
+{
+color:white;
+background:#4B0082;
+border-radius:15px;
+transition: background 1s;
+}
+
+#pushButton:hover
+{
+	color:#4B0082;
+	background:#696969;
+	border-radius:15px;
+
+}
+
+#pushButton:pressed
+{
+background-color: #483D8B;
+transform: scale(0.9);
+}
+
+QToolButton
+{
+background:#4B0082;
+border-radius:60px;
+}
+
+QMainWindow
+{
+background:url('resources/sgustok_fraktal_sirenevyj_132619_1600x1200.jpg');
+}
+
+QLineEdit
+{
+background:transparent;
+border:none;
+color:#717072;
+border-bottom:1px solid #717072;
+}
+
+#checkPassword
+{
+background:#333;
+color:white;
+border-radius:15px;
+transition: background 1s;
+}
+
+#checkPassword:hover
+{
+background:#4B0082;
+border-radius:15px;
+}
+
+#checkPassword:pressed
+{
+background:#483D8B;
+transform: scale(0.9);
+}
+
+QCheckBox {
+    font-size: 16px;
+}
+
+#no_account{
+font-size: 14px;
+}
+</string>
+  </property>
+  <widget class="QFrame" name="frame_2">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>401</width>
+     <height>501</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>401</width>
+     <height>501</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>401</width>
+     <height>501</height>
+    </size>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Shape::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Shadow::Raised</enum>
+   </property>
+   <widget class="QFrame" name="frame">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>361</width>
+      <height>461</height>
+     </rect>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Shape::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Shadow::Raised</enum>
+    </property>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>50</y>
+       <width>141</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="text">
+      <string>Авторизация</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>340</y>
+       <width>341</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Авторизоваться</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="usernameEdit">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>150</y>
+       <width>321</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
+      <string>Username</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="passwordEdit">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>230</y>
+       <width>321</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="inputMask">
+      <string/>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="echoMode">
+      <enum>QLineEdit::EchoMode::Password</enum>
+     </property>
+     <property name="placeholderText">
+      <string>Password</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="checkPassword">
+     <property name="geometry">
+      <rect>
+       <x>300</x>
+       <y>220</y>
+       <width>31</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="checkBox">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>290</y>
+       <width>231</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="acceptDrops">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Запомнить меня?</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="no_account">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>420</y>
+       <width>161</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Нет аккаунта?</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="to_register">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>420</y>
+       <width>151</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">*{
+font-size:14px;
+background:transparent;
+border: none;
+}</string>
+     </property>
+     <property name="text">
+      <string>Зарегистрироваться</string>
+     </property>
+    </widget>
+    <zorder>pushButton</zorder>
+    <zorder>usernameEdit</zorder>
+    <zorder>passwordEdit</zorder>
+    <zorder>checkPassword</zorder>
+    <zorder>checkBox</zorder>
+    <zorder>no_account</zorder>
+    <zorder>to_register</zorder>
+    <zorder>label</zorder>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

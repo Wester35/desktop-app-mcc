@@ -1,0 +1,16 @@
+.venv
+.idea
+__pycache__/
+**/__pycache__/
+libs/__pycache__/
+libs/user_images/
+libs/user_session.json
+*.pyc
+*.pyo
+*.pyd
+models/__pycache__
+controllers/__pycache__
+ui/__pycache__
+views/__pycache__
+*.pyc
+libs/.env
