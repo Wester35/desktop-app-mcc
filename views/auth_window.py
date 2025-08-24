@@ -21,7 +21,7 @@ class Auth(QWidget):
         pixmap = QPixmap("ui/resources/background.jpg")
         self.background.setPixmap(pixmap)
         self.background.setScaledContents(True)
-
+        self.background.lower()
         self.ui.checkPassword.setText("👁️‍🗨️")
         self.ui.checkPassword.setCheckable(True)
         self.ui.checkPassword.clicked.connect(self.check_pwd)
