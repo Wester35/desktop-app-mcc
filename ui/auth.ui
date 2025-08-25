@@ -191,7 +191,7 @@ font-size: 14px;
        <x>20</x>
        <y>150</y>
        <width>321</width>
-       <height>22</height>
+       <height>30</height>
       </rect>
      </property>
      <property name="text">
@@ -207,7 +207,7 @@ font-size: 14px;
        <x>20</x>
        <y>230</y>
        <width>321</width>
-       <height>22</height>
+       <height>30</height>
       </rect>
      </property>
      <property name="inputMask">
@@ -296,6 +296,14 @@ border: none;
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>usernameEdit</tabstop>
+  <tabstop>passwordEdit</tabstop>
+  <tabstop>checkBox</tabstop>
+  <tabstop>checkPassword</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>to_register</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

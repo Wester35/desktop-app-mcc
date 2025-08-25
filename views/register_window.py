@@ -3,7 +3,6 @@ from PySide6.QtWidgets import QWidget, QLabel, QMessageBox, QLineEdit
 from PySide6.QtCore import Qt
 
 from controllers.crud import create_user
-# from controllers.crud import create_user_with_group
 from ui.ui_register import Ui_Registration as RegisterUI
 from views.app_manager import app_manager
 
@@ -30,11 +29,14 @@ class Register(QWidget):
         self.background.lower()
         self.ui.checkPassword.setText("👁️‍🗨️")
         self.ui.checkPassword.setCheckable(True)
+        self.ui.checkPassword_2.setText("👁️‍🗨️")
+        self.ui.checkPassword_2.setCheckable(True)
 
 
     def connect_signals(self):
         self.ui.pushButton.clicked.connect(self.handle_register)
         self.ui.checkPassword.clicked.connect(self.check_pwd)
+        self.ui.checkPassword_2.clicked.connect(self.check_pwd_2)
         self.ui.to_auth.clicked.connect(self.go_to_auth)
 
         app_manager.show_reg_signal.connect(self.show_window)
@@ -87,6 +89,12 @@ class Register(QWidget):
         else:
             self.ui.passwordEdit.setEchoMode(QLineEdit.EchoMode.Password)
 
+    def check_pwd_2(self):
+        if self.ui.checkPassword_2.isChecked():
+            self.ui.passwordEdit_2.setEchoMode(QLineEdit.EchoMode.Normal)
+        else:
+            self.ui.passwordEdit_2.setEchoMode(QLineEdit.EchoMode.Password)
+
     def show_window(self):
         self.show()
         self.raise_()
@@ -96,4 +104,6 @@ class Register(QWidget):
         self.ui.usernameEdit.clear()
         self.ui.passwordEdit.clear()
         self.ui.checkPassword.setChecked(False)
+        self.ui.checkPassword_2.setChecked(False)
         self.ui.passwordEdit.setEchoMode(QLineEdit.EchoMode.Password)
+        self.ui.passwordEdit_2.setEchoMode(QLineEdit.EchoMode.Password)

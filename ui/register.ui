@@ -123,6 +123,16 @@ background:#333;
 color:white;
 border-radius:15px;
 transition: background 1s;
+}
+#checkPassword_2:hover
+{
+background:#4B0082;
+border-radius:15px;
+}
+#checkPassword_2:pressed
+{
+background:#483D8B;
+transform: scale(0.9);
 }</string>
   </property>
   <widget class="QFrame" name="frame_2">
@@ -193,7 +203,7 @@ transition: background 1s;
       </rect>
      </property>
      <property name="text">
-      <string>Sign up</string>
+      <string>Зарегистрироваться</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="usernameEdit">
@@ -202,7 +212,7 @@ transition: background 1s;
        <x>20</x>
        <y>130</y>
        <width>360</width>
-       <height>22</height>
+       <height>30</height>
       </rect>
      </property>
      <property name="text">
@@ -218,7 +228,7 @@ transition: background 1s;
        <x>20</x>
        <y>340</y>
        <width>360</width>
-       <height>22</height>
+       <height>30</height>
       </rect>
      </property>
      <property name="inputMask">
@@ -253,7 +263,7 @@ transition: background 1s;
        <x>20</x>
        <y>200</y>
        <width>360</width>
-       <height>22</height>
+       <height>30</height>
       </rect>
      </property>
      <property name="text">
@@ -269,7 +279,7 @@ transition: background 1s;
        <x>20</x>
        <y>270</y>
        <width>360</width>
-       <height>22</height>
+       <height>30</height>
       </rect>
      </property>
      <property name="text">
@@ -285,7 +295,7 @@ transition: background 1s;
        <x>20</x>
        <y>410</y>
        <width>360</width>
-       <height>22</height>
+       <height>30</height>
       </rect>
      </property>
      <property name="inputMask">
@@ -356,14 +366,25 @@ border: none;
     <zorder>passwordEdit</zorder>
     <zorder>fioEdit</zorder>
     <zorder>phoneEdit</zorder>
-    <zorder>checkPassword_2</zorder>
     <zorder>passwordEdit_2</zorder>
     <zorder>yes_account</zorder>
     <zorder>to_auth</zorder>
     <zorder>checkPassword</zorder>
+    <zorder>checkPassword_2</zorder>
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>usernameEdit</tabstop>
+  <tabstop>fioEdit</tabstop>
+  <tabstop>phoneEdit</tabstop>
+  <tabstop>passwordEdit</tabstop>
+  <tabstop>passwordEdit_2</tabstop>
+  <tabstop>checkPassword</tabstop>
+  <tabstop>checkPassword_2</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>to_auth</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

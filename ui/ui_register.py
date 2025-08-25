@@ -123,6 +123,16 @@ class Ui_Registration(object):
 "color:white;\n"
 "border-radius:15px;\n"
 "transition: background 1s;\n"
+"}\n"
+"#checkPassword_2:hover\n"
+"{\n"
+"background:#4B0082;\n"
+"border-radius:15px;\n"
+"}\n"
+"#checkPassword_2:pressed\n"
+"{\n"
+"background:#483D8B;\n"
+"transform: scale(0.9);\n"
 "}")
         self.frame_2 = QFrame(Registration)
         self.frame_2.setObjectName(u"frame_2")
@@ -145,23 +155,23 @@ class Ui_Registration(object):
         self.pushButton.setGeometry(QRect(10, 470, 381, 61))
         self.usernameEdit = QLineEdit(self.frame)
         self.usernameEdit.setObjectName(u"usernameEdit")
-        self.usernameEdit.setGeometry(QRect(20, 130, 360, 22))
+        self.usernameEdit.setGeometry(QRect(20, 130, 360, 30))
         self.passwordEdit = QLineEdit(self.frame)
         self.passwordEdit.setObjectName(u"passwordEdit")
-        self.passwordEdit.setGeometry(QRect(20, 340, 360, 22))
+        self.passwordEdit.setGeometry(QRect(20, 340, 360, 30))
         self.passwordEdit.setEchoMode(QLineEdit.EchoMode.Password)
         self.checkPassword_2 = QPushButton(self.frame)
         self.checkPassword_2.setObjectName(u"checkPassword_2")
         self.checkPassword_2.setGeometry(QRect(340, 400, 31, 31))
         self.fioEdit = QLineEdit(self.frame)
         self.fioEdit.setObjectName(u"fioEdit")
-        self.fioEdit.setGeometry(QRect(20, 200, 360, 22))
+        self.fioEdit.setGeometry(QRect(20, 200, 360, 30))
         self.phoneEdit = QLineEdit(self.frame)
         self.phoneEdit.setObjectName(u"phoneEdit")
-        self.phoneEdit.setGeometry(QRect(20, 270, 360, 22))
+        self.phoneEdit.setGeometry(QRect(20, 270, 360, 30))
         self.passwordEdit_2 = QLineEdit(self.frame)
         self.passwordEdit_2.setObjectName(u"passwordEdit_2")
-        self.passwordEdit_2.setGeometry(QRect(20, 410, 360, 22))
+        self.passwordEdit_2.setGeometry(QRect(20, 410, 360, 30))
         self.passwordEdit_2.setEchoMode(QLineEdit.EchoMode.Password)
         self.yes_account = QLabel(self.frame)
         self.yes_account.setObjectName(u"yes_account")
@@ -184,11 +194,19 @@ class Ui_Registration(object):
         self.passwordEdit.raise_()
         self.fioEdit.raise_()
         self.phoneEdit.raise_()
-        self.checkPassword_2.raise_()
         self.passwordEdit_2.raise_()
         self.yes_account.raise_()
         self.to_auth.raise_()
         self.checkPassword.raise_()
+        self.checkPassword_2.raise_()
+        QWidget.setTabOrder(self.usernameEdit, self.fioEdit)
+        QWidget.setTabOrder(self.fioEdit, self.phoneEdit)
+        QWidget.setTabOrder(self.phoneEdit, self.passwordEdit)
+        QWidget.setTabOrder(self.passwordEdit, self.passwordEdit_2)
+        QWidget.setTabOrder(self.passwordEdit_2, self.checkPassword)
+        QWidget.setTabOrder(self.checkPassword, self.checkPassword_2)
+        QWidget.setTabOrder(self.checkPassword_2, self.pushButton)
+        QWidget.setTabOrder(self.pushButton, self.to_auth)
 
         self.retranslateUi(Registration)
 
@@ -198,7 +216,7 @@ class Ui_Registration(object):
     def retranslateUi(self, Registration):
         Registration.setWindowTitle(QCoreApplication.translate("Registration", u"Registration", None))
         self.label.setText(QCoreApplication.translate("Registration", u"\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f", None))
-        self.pushButton.setText(QCoreApplication.translate("Registration", u"Sign up", None))
+        self.pushButton.setText(QCoreApplication.translate("Registration", u"\u0417\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u043e\u0432\u0430\u0442\u044c\u0441\u044f", None))
         self.usernameEdit.setText("")
         self.usernameEdit.setPlaceholderText(QCoreApplication.translate("Registration", u"Username", None))
         self.passwordEdit.setInputMask("")
