@@ -35,3 +35,21 @@ def check_if_logged_in():
         if user:
             return user.id
     return None
+
+def create_user(last_name, first_name, middle_name, phone, login,
+                password):
+    session = SessionLocal()
+
+    hashed_password = generate_password_hash(password)
+    new_user = User(
+        last_name=last_name,
+        first_name=first_name,
+        middle_name=middle_name,
+        phone=phone,
+        login=login,
+        password=hashed_password,
+    )
+    session.add(new_user)
+    session.commit()
+    session.close()
+    return new_user

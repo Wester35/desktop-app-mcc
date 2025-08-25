@@ -10,6 +10,6 @@ class User(Base):
     last_name = Column(String, nullable=False)
     first_name = Column(String, nullable=False)
     middle_name = Column(String, nullable=True)
-    phone = Column(String, unique=True, nullable=False)
+    phone = Column(String, unique=True, nullable=True)
     login = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)

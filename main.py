@@ -20,7 +20,8 @@ import sys
 import os
 from PySide6.QtWidgets import QApplication
 
-# Добавляем пути для импорта
+from libs.database import init_db
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from views.app_manager import app_manager
@@ -33,7 +34,7 @@ from views.register_window import Register
 class MainApp:
     def __init__(self):
         self.app = QApplication(sys.argv)
-
+        self.init_database()
         # Создаем только окна авторизации/регистрации
         self.auth_window = Auth()
         self.register_window = Register()
@@ -43,6 +44,17 @@ class MainApp:
 
         # Проверяем авторизацию
         self.check_authentication()
+
+    def init_database(self):
+        """Инициализация базы данных"""
+        try:
+            init_db()  # Создает таблицы если они не существуют
+            print("База данных успешно инициализирована")
+        except Exception as e:
+            print(f"Ошибка инициализации БД: {e}")
+            # Можно показать сообщение об ошибке
+            from PySide6.QtWidgets import QMessageBox
+            QMessageBox.critical(None, "Ошибка БД", f"Не удалось инициализировать базу данных: {e}")
 
     def connect_signals(self):
         # Подключаем только базовые сигналы переключения
@@ -56,7 +68,7 @@ class MainApp:
         #     user_id = check_if_logged_in()
         #     if user_id:
         #         # Автоматический вход через auth_window
-        #         self.auth_window.show_main_window(user_id, False, False)
+        #         self.auth_window.show_main_window(user_id)
         #         return
 
         # Показываем окно авторизации по умолчанию
