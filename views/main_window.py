@@ -15,10 +15,13 @@ class MainWindow(QWidget):
 
         self.user_id = user_id
         self.is_admin = is_admin
-
+        self.session_was_saved = False
         self.connect_signals()
 
         self.setWindowIcon(QPixmap("ui/resources/app_icon.png"))
+
+    def set_session_saved(self, saved):
+        self.session_was_saved = saved
 
     def connect_signals(self):
         self.ui.pushButton.clicked.connect(self.show_register_window)
@@ -34,7 +37,7 @@ class MainWindow(QWidget):
 
     def logout(self):
         delete_user_session()
-        app_manager.logout_signal.emit()
+        app_manager.logout_signal.emit(self.session_was_saved)
         self.close()
 
     def handle_logout(self):
@@ -42,5 +45,7 @@ class MainWindow(QWidget):
         self.close()
 
     def closeEvent(self, event):
-        QApplication.quit()
-        event.accept()
+        if self.session_was_saved:
+            QApplication.quit()
+        else:
+            event.accept()

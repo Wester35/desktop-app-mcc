@@ -9,6 +9,8 @@ from views.main_window import MainWindow
 
 
 class Auth(QWidget):
+
+
     def __init__(self):
         super().__init__()
 
@@ -26,6 +28,8 @@ class Auth(QWidget):
         self.background.lower()
         self.ui.checkPassword.setText("👁️‍🗨️")
         self.ui.checkPassword.setCheckable(True)
+
+        self.session_was_saved = False
 
     def connect_signals(self):
         self.ui.pushButton.clicked.connect(self.handle_login)
@@ -54,8 +58,10 @@ class Auth(QWidget):
         user = authenticate_user(login, password)
 
         if user:
-            if self.ui.checkBox.isChecked():
+            self.session_was_saved = self.ui.checkBox.isChecked()
+            if self.session_was_saved:
                 save_user_session(user.id)
+
             app_manager.show_main_signal.emit(user.id, user.is_admin)
         else:
             QMessageBox.warning(self, "Ошибка", "Неверный логин или пароль!")
@@ -90,4 +96,5 @@ class Auth(QWidget):
         self.ui.passwordEdit.clear()
         self.ui.checkPassword.setChecked(False)
         self.ui.passwordEdit.setEchoMode(QLineEdit.EchoMode.Password)
-        self.show()
+        if not self.session_was_saved:
+            self.show()
