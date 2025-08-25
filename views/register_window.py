@@ -37,13 +37,6 @@ class Register(QWidget):
         self.ui.pushButton.clicked.connect(self.handle_register)
         self.ui.checkPassword.clicked.connect(self.check_pwd)
         self.ui.checkPassword_2.clicked.connect(self.check_pwd_2)
-        self.ui.to_auth.clicked.connect(self.go_to_auth)
-
-        app_manager.show_reg_signal.connect(self.show_window)
-
-    def go_to_auth(self):
-        self.hide()
-        app_manager.show_auth_signal.emit()
 
     def parse_fullname(self, full_name):
             parts = full_name.strip().split()
@@ -59,7 +52,7 @@ class Register(QWidget):
         phone = self.ui.phoneEdit.text()
         password = self.ui.passwordEdit.text()
         password_2 = self.ui.passwordEdit_2.text()
-
+        is_admin_box = self.ui.checkBox.isChecked()
         if password != password_2:
             QMessageBox.warning(self, "Ошибка", "Пароли не совпадают!")
             return
@@ -75,10 +68,10 @@ class Register(QWidget):
                 middle_name=middle,
                 phone=phone,
                 login=login,
-                password=password
+                password=password,
+                is_admin=is_admin_box,
             )
             QMessageBox.information(self, "Успех", "Пользователь успешно зарегистрирован")
-            self.go_to_auth()
         except Exception as e:
             QMessageBox.warning(self, "Ошибка", f"Ошибка БД: {str(e)}")
 
@@ -94,11 +87,6 @@ class Register(QWidget):
             self.ui.passwordEdit_2.setEchoMode(QLineEdit.EchoMode.Normal)
         else:
             self.ui.passwordEdit_2.setEchoMode(QLineEdit.EchoMode.Password)
-
-    def show_window(self):
-        self.show()
-        self.raise_()
-        self.activateWindow()
 
     def handle_logout(self):
         self.ui.usernameEdit.clear()

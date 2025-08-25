@@ -197,7 +197,7 @@ transform: scale(0.9);
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>470</y>
+       <y>510</y>
        <width>381</width>
        <height>61</height>
       </rect>
@@ -311,42 +311,6 @@ transform: scale(0.9);
       <string>Password again</string>
      </property>
     </widget>
-    <widget class="QLabel" name="yes_account">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>550</y>
-       <width>161</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">*{font-size:14px;}</string>
-     </property>
-     <property name="text">
-      <string>Есть аккаунт?</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="to_auth">
-     <property name="geometry">
-      <rect>
-       <x>330</x>
-       <y>550</y>
-       <width>51</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">*{
-font-size:14px;
-background:transparent;
-border: none;
-}</string>
-     </property>
-     <property name="text">
-      <string>Войти</string>
-     </property>
-    </widget>
     <widget class="QPushButton" name="checkPassword">
      <property name="geometry">
       <rect>
@@ -360,6 +324,22 @@ border: none;
       <string/>
      </property>
     </widget>
+    <widget class="QCheckBox" name="checkBox">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>470</y>
+       <width>231</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="acceptDrops">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Is admin?</string>
+     </property>
+    </widget>
     <zorder>label</zorder>
     <zorder>pushButton</zorder>
     <zorder>usernameEdit</zorder>
@@ -367,10 +347,9 @@ border: none;
     <zorder>fioEdit</zorder>
     <zorder>phoneEdit</zorder>
     <zorder>passwordEdit_2</zorder>
-    <zorder>yes_account</zorder>
-    <zorder>to_auth</zorder>
     <zorder>checkPassword</zorder>
     <zorder>checkPassword_2</zorder>
+    <zorder>checkBox</zorder>
    </widget>
   </widget>
  </widget>
@@ -382,8 +361,8 @@ border: none;
   <tabstop>passwordEdit_2</tabstop>
   <tabstop>checkPassword</tabstop>
   <tabstop>checkPassword_2</tabstop>
+  <tabstop>checkBox</tabstop>
   <tabstop>pushButton</tabstop>
-  <tabstop>to_auth</tabstop>
  </tabstops>
  <resources/>
  <connections/>

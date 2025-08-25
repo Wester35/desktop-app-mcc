@@ -13,3 +13,4 @@ class User(Base):
     phone = Column(String, unique=True, nullable=True)
     login = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
+    is_admin = Column(Boolean, default=False)

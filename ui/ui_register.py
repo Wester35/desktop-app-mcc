@@ -15,8 +15,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QFrame, QLabel, QLineEdit,
-    QPushButton, QSizePolicy, QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QFrame, QLabel,
+    QLineEdit, QPushButton, QSizePolicy, QWidget)
 
 class Ui_Registration(object):
     def setupUi(self, Registration):
@@ -152,7 +152,7 @@ class Ui_Registration(object):
         self.label.setStyleSheet(u"")
         self.pushButton = QPushButton(self.frame)
         self.pushButton.setObjectName(u"pushButton")
-        self.pushButton.setGeometry(QRect(10, 470, 381, 61))
+        self.pushButton.setGeometry(QRect(10, 510, 381, 61))
         self.usernameEdit = QLineEdit(self.frame)
         self.usernameEdit.setObjectName(u"usernameEdit")
         self.usernameEdit.setGeometry(QRect(20, 130, 360, 30))
@@ -173,21 +173,13 @@ class Ui_Registration(object):
         self.passwordEdit_2.setObjectName(u"passwordEdit_2")
         self.passwordEdit_2.setGeometry(QRect(20, 410, 360, 30))
         self.passwordEdit_2.setEchoMode(QLineEdit.EchoMode.Password)
-        self.yes_account = QLabel(self.frame)
-        self.yes_account.setObjectName(u"yes_account")
-        self.yes_account.setGeometry(QRect(20, 550, 161, 21))
-        self.yes_account.setStyleSheet(u"*{font-size:14px;}")
-        self.to_auth = QPushButton(self.frame)
-        self.to_auth.setObjectName(u"to_auth")
-        self.to_auth.setGeometry(QRect(330, 550, 51, 21))
-        self.to_auth.setStyleSheet(u"*{\n"
-"font-size:14px;\n"
-"background:transparent;\n"
-"border: none;\n"
-"}")
         self.checkPassword = QPushButton(self.frame)
         self.checkPassword.setObjectName(u"checkPassword")
         self.checkPassword.setGeometry(QRect(340, 330, 31, 31))
+        self.checkBox = QCheckBox(self.frame)
+        self.checkBox.setObjectName(u"checkBox")
+        self.checkBox.setGeometry(QRect(20, 470, 231, 20))
+        self.checkBox.setAcceptDrops(False)
         self.label.raise_()
         self.pushButton.raise_()
         self.usernameEdit.raise_()
@@ -195,18 +187,17 @@ class Ui_Registration(object):
         self.fioEdit.raise_()
         self.phoneEdit.raise_()
         self.passwordEdit_2.raise_()
-        self.yes_account.raise_()
-        self.to_auth.raise_()
         self.checkPassword.raise_()
         self.checkPassword_2.raise_()
+        self.checkBox.raise_()
         QWidget.setTabOrder(self.usernameEdit, self.fioEdit)
         QWidget.setTabOrder(self.fioEdit, self.phoneEdit)
         QWidget.setTabOrder(self.phoneEdit, self.passwordEdit)
         QWidget.setTabOrder(self.passwordEdit, self.passwordEdit_2)
         QWidget.setTabOrder(self.passwordEdit_2, self.checkPassword)
         QWidget.setTabOrder(self.checkPassword, self.checkPassword_2)
-        QWidget.setTabOrder(self.checkPassword_2, self.pushButton)
-        QWidget.setTabOrder(self.pushButton, self.to_auth)
+        QWidget.setTabOrder(self.checkPassword_2, self.checkBox)
+        QWidget.setTabOrder(self.checkBox, self.pushButton)
 
         self.retranslateUi(Registration)
 
@@ -230,8 +221,7 @@ class Ui_Registration(object):
         self.passwordEdit_2.setInputMask("")
         self.passwordEdit_2.setText("")
         self.passwordEdit_2.setPlaceholderText(QCoreApplication.translate("Registration", u"Password again", None))
-        self.yes_account.setText(QCoreApplication.translate("Registration", u"\u0415\u0441\u0442\u044c \u0430\u043a\u043a\u0430\u0443\u043d\u0442?", None))
-        self.to_auth.setText(QCoreApplication.translate("Registration", u"\u0412\u043e\u0439\u0442\u0438", None))
         self.checkPassword.setText("")
+        self.checkBox.setText(QCoreApplication.translate("Registration", u"Is admin?", None))
     # retranslateUi
 

@@ -1,5 +1,7 @@
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QLabel, QMessageBox, QLineEdit
+
+from controllers.crud import save_user_session, authenticate_user
 # from controllers.crud import authenticate_user, save_user_session
 from ui.ui_auth import Ui_Authorization as LoginUI
 from views.app_manager import app_manager
@@ -24,18 +26,12 @@ class Auth(QWidget):
         self.background.lower()
         self.ui.checkPassword.setText("👁️‍🗨️")
         self.ui.checkPassword.setCheckable(True)
-        self.main_window = MainWindow()
 
     def connect_signals(self):
         self.ui.pushButton.clicked.connect(self.handle_login)
-        self.ui.to_register.clicked.connect(self.go_to_register)
         self.ui.checkPassword.clicked.connect(self.check_pwd)
-        app_manager.show_auth_signal.connect(self.show_window)
-        app_manager.logout_signal.connect(self.handle_logout)
 
-    def go_to_register(self):
-        self.hide()
-        app_manager.show_reg_signal.emit()
+        app_manager.logout_signal.connect(self.handle_logout)
 
     def handle_login(self):
         login = self.ui.usernameEdit.text()
@@ -45,29 +41,33 @@ class Auth(QWidget):
             QMessageBox.warning(self, "Ошибка", "Введите логин и пароль!")
             return
 
-        # огда будет готова БД
-        # user = authenticate_user(login, password)
-        #
-        # if user:
-        #     if self.ui.checkBox.isChecked():
-        #         save_user_session(user.id)
-        #     self.show_main_window(user.id, user.is_teacher, user.is_admin)
-        # else:
-        #     QMessageBox.warning(self, "Ошибка", "Неверно")
 
-        # Временная заглушка для теста
-        self.show_main_window(1)
 
-    def show_main_window(self, user_id):
-        """Показать главное окно (вызывается только после успешной авторизации)"""
-        self.hide()  # Скрываем окно авторизации
+    def handle_login(self):
+        login = self.ui.usernameEdit.text()
+        password = self.ui.passwordEdit.text()
 
-        # Создаем или показываем главное окно
-        if self.main_window is None:
-            self.main_window = MainWindow(user_id)
+        if not login or not password:
+            QMessageBox.warning(self, "Ошибка", "Введите логин и пароль!")
+            return
+
+        user = authenticate_user(login, password)
+
+        if user:
+            if self.ui.checkBox.isChecked():
+                save_user_session(user.id)
+            app_manager.show_main_signal.emit(user.id, user.is_admin)
         else:
-            # Обновляем данные если окно уже существует
-            self.main_window.update_user_data(user_id)
+            QMessageBox.warning(self, "Ошибка", "Неверный логин или пароль!")
+
+
+
+    def show_main_window(self, user_id, is_admin):
+        self.hide()
+        if self.main_window is None:
+            self.main_window = MainWindow(user_id, is_admin=is_admin)
+        else:
+            self.main_window.update_user_data(user_id, is_admin=is_admin)
 
         self.main_window.show()
 
@@ -78,13 +78,16 @@ class Auth(QWidget):
             self.ui.passwordEdit.setEchoMode(QLineEdit.EchoMode.Password)
 
     def show_window(self):
+        if hasattr(self, 'main_window') and self.main_window and self.main_window.isVisible():
+            return
         self.show()
         self.raise_()
         self.activateWindow()
+        self.ui.usernameEdit.setFocus()
 
     def handle_logout(self):
-        """Обработка выхода - очистка полей"""
         self.ui.usernameEdit.clear()
         self.ui.passwordEdit.clear()
         self.ui.checkPassword.setChecked(False)
         self.ui.passwordEdit.setEchoMode(QLineEdit.EchoMode.Password)
+        self.show()

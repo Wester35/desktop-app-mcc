@@ -176,7 +176,7 @@ font-size: 14px;
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>340</y>
+       <y>380</y>
        <width>341</width>
        <height>61</height>
       </rect>
@@ -205,7 +205,7 @@ font-size: 14px;
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>230</y>
+       <y>240</y>
        <width>321</width>
        <height>30</height>
       </rect>
@@ -240,7 +240,7 @@ font-size: 14px;
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>290</y>
+       <y>330</y>
        <width>231</width>
        <height>20</height>
       </rect>
@@ -252,46 +252,11 @@ font-size: 14px;
       <string>Запомнить меня?</string>
      </property>
     </widget>
-    <widget class="QLabel" name="no_account">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>420</y>
-       <width>161</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Нет аккаунта?</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="to_register">
-     <property name="geometry">
-      <rect>
-       <x>200</x>
-       <y>420</y>
-       <width>151</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">*{
-font-size:14px;
-background:transparent;
-border: none;
-}</string>
-     </property>
-     <property name="text">
-      <string>Зарегистрироваться</string>
-     </property>
-    </widget>
     <zorder>pushButton</zorder>
     <zorder>usernameEdit</zorder>
     <zorder>passwordEdit</zorder>
     <zorder>checkPassword</zorder>
     <zorder>checkBox</zorder>
-    <zorder>no_account</zorder>
-    <zorder>to_register</zorder>
     <zorder>label</zorder>
    </widget>
   </widget>
@@ -302,7 +267,6 @@ border: none;
   <tabstop>checkBox</tabstop>
   <tabstop>checkPassword</tabstop>
   <tabstop>pushButton</tabstop>
-  <tabstop>to_register</tabstop>
  </tabstops>
  <resources/>
  <connections/>
