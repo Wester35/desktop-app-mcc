@@ -45,16 +45,6 @@ class Auth(QWidget):
             QMessageBox.warning(self, "Ошибка", "Введите логин и пароль!")
             return
 
-
-
-    def handle_login(self):
-        login = self.ui.usernameEdit.text()
-        password = self.ui.passwordEdit.text()
-
-        if not login or not password:
-            QMessageBox.warning(self, "Ошибка", "Введите логин и пароль!")
-            return
-
         user = authenticate_user(login, password)
 
         if user:
@@ -65,7 +55,6 @@ class Auth(QWidget):
             app_manager.show_main_signal.emit(user.id, user.is_admin)
         else:
             QMessageBox.warning(self, "Ошибка", "Неверный логин или пароль!")
-
 
 
     def show_main_window(self, user_id, is_admin):
