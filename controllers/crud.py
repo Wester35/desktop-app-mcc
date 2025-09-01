@@ -2,40 +2,132 @@ import json
 import os
 from sqlalchemy import func, and_, case
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta
+from werkzeug.security import generate_password_hash, check_password_hash
+import base64
+from cryptography.fernet import Fernet
+from pathlib import Path
 from libs.database import SessionLocal
 from models.User import User
-from werkzeug.security import generate_password_hash, check_password_hash
 
 
-def save_user_session(user_id):
-    with open("libs/user_session.json", "w") as f:
-        json.dump({"user_id": user_id}, f)
+
+def generate_key():
+    return Fernet.generate_key()
 
 
-def delete_user_session():
-    auth_file_path = "libs/user_session.json"
-    if os.path.exists(auth_file_path):
-        os.remove(auth_file_path)
+def get_session_path():
+    app_data_dir = Path.home() / ".mcc_app"
+    app_data_dir.mkdir(exist_ok=True)
+    return app_data_dir / "session.dat"
+
+
+def get_encryption_key():
+    key_file = get_session_path().parent / "key.dat"
+
+    if key_file.exists():
+        with open(key_file, 'rb') as f:
+            return f.read()
+    else:
+        key = generate_key()
+        with open(key_file, 'wb') as f:
+            f.write(key)
+        return key
+
+
+def encrypt_data(data, key):
+    fernet = Fernet(key)
+    encrypted_data = fernet.encrypt(data.encode())
+    return encrypted_data
+
+
+def decrypt_data(encrypted_data, key):
+    fernet = Fernet(key)
+    decrypted_data = fernet.decrypt(encrypted_data).decode()
+    return decrypted_data
+
+
+def save_user_session(user_id, remember_me=False):
+    try:
+        session_data = {
+            'user_id': user_id,
+            'login_time': datetime.now().isoformat(),
+            'expires_at': (datetime.now() + timedelta(days=30)).isoformat() if remember_me else None,
+            'remember_me': remember_me
+        }
+
+        key = get_encryption_key()
+        encrypted_data = encrypt_data(json.dumps(session_data), key)
+
+        session_path = get_session_path()
+        with open(session_path, 'wb') as f:
+            f.write(encrypted_data)
+
+        os.chmod(session_path, 0o600)
+
+        return True
+    except Exception as e:
+        print(f"Ошибка сохранения сессии: {e}")
+        return False
 
 
 def load_user_session():
     try:
-        with open("libs/user_session.json", "r") as f:
-            return json.load(f)
-    except FileNotFoundError:
+        session_path = get_session_path()
+        if not session_path.exists():
+            return None
+
+        key = get_encryption_key()
+
+        with open(session_path, 'rb') as f:
+            encrypted_data = f.read()
+
+        decrypted_data = decrypt_data(encrypted_data, key)
+        session_data = json.loads(decrypted_data)
+
+        if session_data['remember_me'] and session_data['expires_at']:
+            expires_at = datetime.fromisoformat(session_data['expires_at'])
+            if datetime.now() > expires_at:
+                delete_user_session()
+                return None
+
+        return session_data
+
+    except Exception as e:
+        print(f"Ошибка загрузки сессии: {e}")
+        # При ошибках удаляем поврежденную сессию
+        delete_user_session()
         return None
+
+
+def delete_user_session():
+    try:
+        session_path = get_session_path()
+        if session_path.exists():
+            session_path.unlink()
+        return True
+    except Exception as e:
+        print(f"Ошибка удаления сессии: {e}")
+        return False
 
 
 def check_if_logged_in():
     session_data = load_user_session()
-    if session_data:
-        user_id = session_data.get("user_id")
-        db = SessionLocal()
-        user = db.query(User).filter(User.id == user_id).first()
-        db.close()
+    if not session_data:
+        return None, False
+
+    from libs.database import SessionLocal
+
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.id == session_data['user_id']).first()
         if user:
             return user.id, user.is_admin
-    return None, None
+        else:
+            delete_user_session()
+            return None, False
+    finally:
+        db.close()
 
 
 def authenticate_user(login, password):
