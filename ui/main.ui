@@ -39,6 +39,32 @@
     <string>PushButton</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="data_input_btn">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>90</y>
+     <width>131</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>data_input_btn</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="analytics_btn">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>90</y>
+     <width>131</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>analytics_btn</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>

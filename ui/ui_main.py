@@ -28,6 +28,12 @@ class Ui_MainWindow(object):
         self.pushButton_2 = QPushButton(MainWindow)
         self.pushButton_2.setObjectName(u"pushButton_2")
         self.pushButton_2.setGeometry(QRect(190, 30, 131, 41))
+        self.data_input_btn = QPushButton(MainWindow)
+        self.data_input_btn.setObjectName(u"data_input_btn")
+        self.data_input_btn.setGeometry(QRect(20, 90, 131, 41))
+        self.analytics_btn = QPushButton(MainWindow)
+        self.analytics_btn.setObjectName(u"analytics_btn")
+        self.analytics_btn.setGeometry(QRect(190, 90, 131, 41))
 
         self.retranslateUi(MainWindow)
 
@@ -38,5 +44,7 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainApp", None))
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
         self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
+        self.data_input_btn.setText(QCoreApplication.translate("MainWindow", u"data_input_btn", None))
+        self.analytics_btn.setText(QCoreApplication.translate("MainWindow", u"analytics_btn", None))
     # retranslateUi
 
