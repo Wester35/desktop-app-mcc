@@ -1,6 +1,7 @@
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QLabel, QMessageBox, QLineEdit, QApplication
 from ui.ui_main import Ui_MainWindow
+from views.analytics_window import AnalyticsWindow
 from views.app_manager import app_manager
 from controllers.crud import delete_user_session
 from views.data_input_window import DataInputWindow
@@ -43,7 +44,7 @@ class MainWindow(QWidget):
     def open_analytics(self):
         """Открытие окна аналитики"""
         if self.analytics_window is None:
-            self.analytics_window = AnalyticsWindow(self.user_id, self.is_admin)
+            self.analytics_window = AnalyticsWindow()
         self.analytics_window.show()
 
     def update_user_data(self, user_id, is_admin):

@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, Float
+from sqlalchemy import Column, Integer, Float, DateTime
 from libs.database import Base
-
+from datetime import datetime
 
 class MCKData(Base):
     __tablename__ = "mck_data"
@@ -18,3 +18,11 @@ class MCKData(Base):
 
     def __repr__(self):
         return f"<MCKData {self.year}>"
+
+class AnalysisResult(Base):
+    __tablename__ = "analysis_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    year = Column(Integer, index=True)
+    integrated_index = Column(Float)  # y_оконч
+    created_at = Column(DateTime, default=datetime.now)
