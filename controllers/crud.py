@@ -157,3 +157,14 @@ def create_user(last_name, first_name, middle_name, phone, login,
     session.commit()
     session.close()
     return new_user
+
+def check_existing_admin():
+    db = SessionLocal()
+    existing_admin = db.query(User).filter(User.is_admin == True).first()
+    db.close()
+
+    if existing_admin:
+        print("Администратор уже существует, пропускаем инициализацию")
+        return False
+
+    return True

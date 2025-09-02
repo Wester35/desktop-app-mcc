@@ -2,12 +2,14 @@ import sys
 import os
 from PySide6.QtWidgets import QApplication
 
-from controllers.crud import check_if_logged_in, load_user_session
+from controllers.crud import check_if_logged_in, load_user_session, create_user, check_existing_admin
 from libs.database import init_db
 from views.main_window import MainWindow
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
+from os import getenv
+from dotenv import load_dotenv
+from PySide6.QtWidgets import QMessageBox
 from views.app_manager import app_manager
 from views.auth_window import Auth
 
@@ -15,7 +17,9 @@ from views.auth_window import Auth
 class MainApp:
     def __init__(self):
         self.app = QApplication(sys.argv)
+        load_dotenv()
         self.init_database()
+        self.init_admin()
         self.auth_window = Auth()
         self.main_window = None
         self.session_was_saved = False
@@ -28,9 +32,25 @@ class MainApp:
             print("База данных успешно инициализирована")
         except Exception as e:
             print(f"Ошибка инициализации БД: {e}")
-
-            from PySide6.QtWidgets import QMessageBox
             QMessageBox.critical(None, "Ошибка БД", f"Не удалось инициализировать базу данных: {e}")
+
+    def init_admin(self):
+        try:
+            check = check_existing_admin()
+            if check:
+                create_user(
+                    last_name="",
+                    first_name="",
+                    middle_name="",
+                    phone="",
+                    login=getenv('login'),
+                    password=getenv('password'),
+                    is_admin=True
+                )
+                print("Администратор успешно инициализирован")
+        except Exception as e:
+            print(f"Ошибка инициализации администратора: {e}")
+            QMessageBox.critical(None, "Ошибка БД", f"Не удалось инициализировать администратора: {e}")
 
     def connect_signals(self):
         app_manager.show_main_signal.connect(self.show_main_window)
