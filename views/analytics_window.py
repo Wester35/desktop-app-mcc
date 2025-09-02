@@ -2,6 +2,8 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
                                QLabel, QTableWidget, QTableWidgetItem, QMessageBox,
                                QHeaderView, QGroupBox, QTextEdit)
 from PySide6.QtCore import Qt
+
+from controllers.data_crud import get_all_data_dataframe
 from libs.database import get_db
 from analytics.ryabtsev import RyabtsevMethod
 from controllers.analysis_crud import save_analysis_result
@@ -83,6 +85,17 @@ class AnalyticsWindow(QWidget):
                 QMessageBox.warning(self, "Ошибка", "Не удалось рассчитать показатели!")
                 return
 
+            # ДЛЯ ОТЛАДКИ: получаем нормированные данные и промежуточные результаты
+            normalized_data = self.ryabtsev.get_normalized_data()
+            stage_results = self.ryabtsev.get_all_stage_results()
+            print("№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№")
+            print("Нормированные данные:")
+            print(normalized_data)
+
+            print("\nРезультаты по этапам:")
+            for stage, result in stage_results.items():
+                print(f"Этап {stage}: {result}")
+
             # Сохраняем результаты
             for year, value in results.items():
                 save_analysis_result(db, year, value)
@@ -95,7 +108,8 @@ class AnalyticsWindow(QWidget):
 
         except Exception as e:
             QMessageBox.warning(self, "Ошибка", f"Ошибка расчета: {str(e)}")
-
+            import traceback
+            print(traceback.format_exc())  # Для детальной отладки
     def display_results(self, results, weights):
         """Отображение результатов в таблицах"""
         # Интегральные показатели

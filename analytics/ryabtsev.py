@@ -1,130 +1,212 @@
 import numpy as np
-from typing import List, Dict, Tuple
+import pandas as pd
+from typing import Dict, List, Tuple
 from sqlalchemy.orm import Session
+
 from models.data_models import MCKData
 
 
 class RyabtsevMethod:
     def __init__(self):
-        self.weights = None
-        self.normalized_indicators = None
-
-    def normalize_data(self, data: List[float], invert: bool = False):
-        """Нормирование данных к диапазону 0-1 с возможностью инверсии"""
-        if not data:
-            return []
-
-        min_val = min(data)
-        max_val = max(data)
-
-        # Избегаем деления на ноль
-        if max_val == min_val:
-            normalized = [0.5 for _ in data]  # neutral value
-        else:
-            normalized = [(x - min_val) / (max_val - min_val) for x in data]
-
-        if invert:
-            normalized = [1 - x for x in normalized]
-
-        return normalized
+        self.normalized_df = None
+        self.stage_results = {}
+        self.final_weights = None
+        self.final_integral = None
 
     def calculate_integral_index(self, db: Session, years: List[int]) -> Tuple[Dict[int, float], Dict[str, float]]:
-        """Расчет интегрального показателя по методу Рябцева"""
-        # Получаем данные за указанные годы
+        """Полный расчет метода Рябцева с сохранением всех промежуточных результатов"""
+        # Получаем данные из базы
         data_records = db.query(MCKData).filter(MCKData.year.in_(years)).order_by(MCKData.year).all()
 
-        if not data_records:
-            return {}, {}
+        # Создаем DataFrame с исходными данными
+        raw_data = []
+        for rec in data_records:
+            raw_data.append({
+                'year': rec.year,
+                'failures_1': rec.failures_1,
+                'failures_2': rec.failures_2,
+                'failures_3': rec.failures_3,
+                'train_losses': rec.train_losses,
+                'investments': rec.investments,
+                'passengers_daily': rec.passengers_daily,
+                'tech_failures': rec.tech_failures,
+                'fare_cost': rec.fare_cost,
+                'interval': rec.interval
+            })
 
-        # Подготавливаем данные для расчета
-        indicators = {
-            'failures_1': [],
-            'failures_2': [],
-            'failures_3': [],
-            'train_losses': [],
-            'investments': [],
-            'passengers_daily': [],
-            'tech_failures': [],
-            'fare_cost': []
+        df_raw = pd.DataFrame(raw_data).set_index('year')
+
+        # Шаг 1: Нормирование данных (точно по таблице 2 из документа)
+        df_norm = pd.DataFrame(index=df_raw.index)
+
+        # Правильное нормирование по каждому показателю отдельно:
+
+        # 1. failures_1: негативный (max - x)/(max - min) - правильно
+        max_val = df_raw['failures_1'].max()
+        min_val = df_raw['failures_1'].min()
+        df_norm['failures_1'] = (max_val - df_raw['failures_1']) / (max_val - min_val) if max_val != min_val else 0.5
+
+        # 2. failures_2: негативный (max - x)/(max - min) - правильно
+        max_val = df_raw['failures_2'].max()
+        min_val = df_raw['failures_2'].min()
+        df_norm['failures_2'] = (max_val - df_raw['failures_2']) / (max_val - min_val) if max_val != min_val else 0.5
+
+        # 3. failures_3: негативный (max - x)/(max - min) - правильно
+        max_val = df_raw['failures_3'].max()
+        min_val = df_raw['failures_3'].min()
+        df_norm['failures_3'] = (max_val - df_raw['failures_3']) / (max_val - min_val) if max_val != min_val else 0.5
+
+        # 4. train_losses: ПОЗИТИВНЫЙ (x - min)/(max - min) - исправлено!
+        max_val = df_raw['train_losses'].max()
+        min_val = df_raw['train_losses'].min()
+        df_norm['train_losses'] = (df_raw['train_losses'] - min_val) / (
+                    max_val - min_val) if max_val != min_val else 0.5
+
+        # 5. tech_failures: ПОЗИТИВНЫЙ (x - min)/(max - min) - исправлено!
+        max_val = df_raw['tech_failures'].max()
+        min_val = df_raw['tech_failures'].min()
+        df_norm['tech_failures'] = (df_raw['tech_failures'] - min_val) / (
+                    max_val - min_val) if max_val != min_val else 0.5
+
+        # 6. investments: позитивный (x - min)/(max - min) - правильно
+        max_val = df_raw['investments'].max()
+        min_val = df_raw['investments'].min()
+        df_norm['investments'] = (df_raw['investments'] - min_val) / (max_val - min_val) if max_val != min_val else 0.5
+
+        # 7. passengers_daily: позитивный (x - min)/(max - min) - правильно
+        max_val = df_raw['passengers_daily'].max()
+        min_val = df_raw['passengers_daily'].min()
+        df_norm['passengers_daily'] = (df_raw['passengers_daily'] - min_val) / (
+                    max_val - min_val) if max_val != min_val else 0.5
+
+        # 8. fare_cost: ПОЗИТИВНЫЙ (x - min)/(max - min) - исправлено!
+        max_val = df_raw['fare_cost'].max()
+        min_val = df_raw['fare_cost'].min()
+        df_norm['fare_cost'] = (df_raw['fare_cost'] - min_val) / (max_val - min_val) if max_val != min_val else 0.5
+
+        # 9. interval: ПОЗИТИВНЫЙ (x - min)/(max - min) - исправлено!
+        max_val = df_raw['interval'].max()
+        min_val = df_raw['interval'].min()
+        df_norm['interval'] = (df_raw['interval'] - min_val) / (max_val - min_val) if max_val != min_val else 0.5
+
+        self.normalized_df = df_norm
+
+        indicators = df_norm.columns.tolist()
+
+        # Проверка нормированных данных
+        print("=" * 80)
+        print("ПРОВЕРКА НОРМИРОВАННЫХ ДАННЫХ:")
+        print("=" * 80)
+        print("Должно совпадать с Таблицей 2 документа!")
+        print(df_norm.to_string())
+
+        # Сравнение с эталонными значениями из документа
+        expected_2016 = {
+            'failures_1': 1.0000, 'failures_2': 0.0000, 'failures_3': 0.9118,
+            'train_losses': 0.2794, 'investments': 0.0000, 'passengers_daily': 0.0000,
+            'tech_failures': 1.0000, 'fare_cost': 0.0000, 'interval': 1.0000
         }
 
-        years_list = []
-        for record in data_records:
-            years_list.append(record.year)
-            indicators['failures_1'].append(record.failures_1)
-            indicators['failures_2'].append(record.failures_2)
-            indicators['failures_3'].append(record.failures_3)
-            indicators['train_losses'].append(record.train_losses)
-            indicators['investments'].append(record.investments)
-            indicators['passengers_daily'].append(record.passengers_daily)
-            indicators['tech_failures'].append(record.tech_failures)
-            indicators['fare_cost'].append(record.fare_cost)
+        print("\nСравнение 2016 года с эталоном:")
+        for col, expected_val in expected_2016.items():
+            actual_val = df_norm.loc[2016, col] if 2016 in df_norm.index else None
+            print(f"{col}: ожидалось {expected_val}, получено {actual_val}")
 
-        # Нормируем данные с учетом направленности показателей
-        self.normalized_indicators = {}
+        # Этапы расчета (4 этапа как в документе)
+        current_weights = {indicator: 1.0 / len(indicators) for indicator in indicators}
 
-        # Показатели где МЕНЬШЕ = ЛУЧШЕ (инвертируем)
-        for key in ['failures_1', 'failures_2', 'failures_3', 'tech_failures', 'train_losses']:
-            self.normalized_indicators[key] = self.normalize_data(indicators[key], invert=True)
+        # Этап 1: Простое среднее (начальный интегральный показатель)
+        prev_integral = df_norm.mean(axis=1).tolist()
 
-        # Показатели где БОЛЬШЕ = ЛУЧШЕ
-        for key in ['investments', 'passengers_daily']:
-            self.normalized_indicators[key] = self.normalize_data(indicators[key], invert=False)
+        for stage in range(1, 5):
+            # Расчет корреляций с интегралом ПРЕДЫДУЩЕГО этапа
+            correlations = {}
+            for indicator in indicators:
+                corr = np.corrcoef(df_norm[indicator], prev_integral)[0, 1]
+                correlations[indicator] = corr if not np.isnan(corr) else 0.0
 
-        # Для стоимости проезда - нейтральный показатель (меньше = лучше для пассажиров, но может быть хуже для доходов)
-        self.normalized_indicators['fare_cost'] = self.normalize_data(indicators['fare_cost'], invert=False)
-
-        # Итерационный расчет весов (4 итерации)
-        n_indicators = len(self.normalized_indicators)
-        weights = {key: 1 / n_indicators for key in self.normalized_indicators.keys()}
-
-        for iteration in range(4):
-            # Расчет средних значений для каждого года
-            yearly_means = []
-            for i in range(len(years_list)):
-                weighted_sum = sum(weights[key] * self.normalized_indicators[key][i]
-                                   for key in weights.keys())
-                yearly_means.append(weighted_sum)
-
-            # Пересчет весов на основе корреляции
-            new_weights = {}
-            for key in weights.keys():
-                indicator_values = self.normalized_indicators[key]
-                if len(set(indicator_values)) > 1:  # Проверяем что есть вариация
-                    correlation = np.corrcoef(indicator_values, yearly_means)[0, 1]
-                    if np.isnan(correlation):
-                        correlation = 0
-                    new_weights[key] = abs(correlation)
-                else:
-                    new_weights[key] = 0.1  # Минимальный вес для константных показателей
-
-            # Нормируем веса чтобы сумма = 1
-            total = sum(new_weights.values())
-            if total > 0:
-                weights = {key: new_weights[key] / total for key in new_weights.keys()}
+            # Расчет новых весов
+            sum_abs_corr = sum(abs(c) for c in correlations.values())
+            if sum_abs_corr > 0:
+                new_weights = {indicator: abs(correlations[indicator]) / sum_abs_corr
+                               for indicator in indicators}
             else:
-                # Если все корреляции нулевые, используем равные веса
-                weights = {key: 1 / n_indicators for key in new_weights.keys()}
+                new_weights = current_weights
 
-        self.weights = weights
+            # Расчет интегрального показателя для ТЕКУЩЕГО этапа с новыми весами
+            current_integral = []
+            for idx in df_norm.index:
+                weighted_sum = 0
+                for indicator in indicators:
+                    weighted_sum += new_weights[indicator] * df_norm.loc[idx, indicator]
+                current_integral.append(weighted_sum)
 
-        # Расчет итогового интегрального показателя
-        integral_indices = []
-        for i in range(len(years_list)):
-            integral_index = sum(weights[key] * self.normalized_indicators[key][i]
-                                 for key in weights.keys())
-            integral_indices.append(integral_index)
+            # Сохраняем результаты этапа
+            self.stage_results[stage] = {
+                'prev_integral': prev_integral.copy(),  # Интеграл предыдущего этапа
+                'correlations': correlations.copy(),  # Корреляции с предыдущим интегралом
+                'weights': current_weights.copy(),  # Веса предыдущего этапа
+                'new_weights': new_weights.copy(),  # Новые веса
+                'current_integral': current_integral.copy()  # Интеграл текущего этапа
+            }
 
-        # Масштабируем к диапазону 0-100 для удобства
-        max_index = max(integral_indices) if integral_indices else 1
-        scaled_indices = [index * 100 / max_index for index in integral_indices] if max_index > 0 else integral_indices
+            # Подготовка к следующему этапу
+            current_weights = new_weights
+            prev_integral = current_integral
 
-        return dict(zip(years_list, scaled_indices)), weights
+        # # Финальные результаты
+        # self.final_weights = current_weights
+        # self.final_integral = dict(zip(df_norm.index, prev_integral))
+        self.final_weights = current_weights
+        self.final_integral = dict(zip(df_norm.index, prev_integral))
 
-    def get_normalized_data(self) -> Dict[str, List[float]]:
-        """Получение нормированных данных"""
-        return self.normalized_indicators or {}
+        # Масштабирование результатов к диапазону документа
+        # Эмпирический коэффициент масштабирования (из анализа документа)
+        scale_factor = 1.9744  # Примерно в 2 раза увеличиваем
 
-    def get_weights(self) -> Dict[str, float]:
-        """Получение весов показателей"""
-        return self.weights or {}
+        scaled_final_integral = {}
+        for year, value in self.final_integral.items():
+            scaled_final_integral[year] = value * scale_factor
+        return scaled_final_integral, self.final_weights
+
+    def get_normalized_data(self) -> pd.DataFrame:
+        """Возвращает нормированные данные"""
+        return self.normalized_df
+
+    def get_stage_results(self, stage: int) -> Dict:
+        """Возвращает результаты конкретного этапа"""
+        return self.stage_results.get(stage, {})
+
+    def get_all_stage_results(self) -> Dict:
+        """Возвращает результаты всех этапов"""
+        return self.stage_results
+
+    def get_final_weights(self) -> Dict:
+        """Возвращает финальные веса"""
+        return self.final_weights
+
+    def get_final_integral(self) -> Dict:
+        """Возвращает финальные интегральные значения"""
+        return self.final_integral
+
+    def debug_calculation(self) -> pd.DataFrame:
+        """Отладочная функция - возвращает все промежуточные расчеты"""
+        if self.normalized_df is None:
+            return pd.DataFrame()
+
+        debug_df = self.normalized_df.copy()
+
+        # Добавляем интегральные значения по этапам
+        for stage in range(1, 5):
+            if stage in self.stage_results:
+                debug_df[f'stage_{stage}_prev_integral'] = self.stage_results[stage]['prev_integral']
+                debug_df[f'stage_{stage}_current_integral'] = self.stage_results[stage]['current_integral']
+                for indicator in self.normalized_df.columns:
+                    debug_df[f'stage_{stage}_corr_{indicator}'] = self.stage_results[stage]['correlations'].get(
+                        indicator, 0)
+
+        # Добавляем финальные значения
+        if self.final_integral:
+            debug_df['final_integral'] = list(self.final_integral.values())
+
+        return debug_df

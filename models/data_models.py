@@ -15,6 +15,7 @@ class MCKData(Base):
     passengers_daily = Column(Integer)  # Среднесуточное количество пассажиров, чел.
     tech_failures = Column(Integer)  # Отказы технических средств, раз
     fare_cost = Column(Float)  # Стоимость оплаты проезда, руб.
+    interval = Column(Float)
 
     def __repr__(self):
         return f"<MCKData {self.year}>"
