@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
 from models.data_models import MCKData
+import pandas as pd
+
 
 def create_mck_data(db: Session, year: int, failures_1: int, failures_2: int,
                    failures_3: int, train_losses: float, investments: float,
@@ -51,3 +53,33 @@ def update_data(db: Session, year: int, **kwargs):
         db.commit()
         db.refresh(data)
     return data
+
+
+def get_all_data_dataframe(db: Session) -> pd.DataFrame:
+    """Получение всех данных в виде DataFrame"""
+    try:
+        # Вариант 1: Через SQLAlchemy query (проще)
+        data = db.query(MCKData).order_by(MCKData.year).all()
+        # Преобразуем в список словарей
+        data_dicts = []
+        for record in data:
+            data_dicts.append({
+                'year': record.year,
+                'failures_1': record.failures_1,
+                'failures_2': record.failures_2,
+                'failures_3': record.failures_3,
+                'train_losses': record.train_losses,
+                'investments': record.investments,
+                'passengers_daily': record.passengers_daily,
+                'tech_failures': record.tech_failures,
+                'fare_cost': record.fare_cost,
+                'interval': record.interval,
+                'profitability': record.profitability,
+                'cap_invest_interval': record.cap_invest_interval
+            })
+
+        return pd.DataFrame(data_dicts)
+
+    except Exception as e:
+        print(f"Ошибка получения данных: {e}")
+        return pd.DataFrame()
