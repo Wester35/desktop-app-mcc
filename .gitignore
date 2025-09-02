@@ -15,3 +15,5 @@ views/__pycache__
 *.pyc
 libs/.env
 data/
+analytics/__pycache__/
+.env

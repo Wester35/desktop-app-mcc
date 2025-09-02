@@ -1,8 +1,10 @@
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QLabel, QMessageBox, QLineEdit, QApplication
 from ui.ui_main import Ui_MainWindow
+from views.analytics_window import AnalyticsWindow
 from views.app_manager import app_manager
 from controllers.crud import delete_user_session
+from views.data_input_window import DataInputWindow
 from views.register_window import Register
 
 
@@ -17,7 +19,8 @@ class MainWindow(QWidget):
         self.is_admin = is_admin
         self.session_was_saved = False
         self.connect_signals()
-
+        self.data_input_window = None
+        self.analytics_window = None
         self.setWindowIcon(QPixmap("ui/resources/app_icon.png"))
 
     def set_session_saved(self, saved):
@@ -26,6 +29,23 @@ class MainWindow(QWidget):
     def connect_signals(self):
         self.ui.pushButton.clicked.connect(self.show_register_window)
         self.ui.pushButton_2.clicked.connect(self.logout)
+        #############################
+        # Кнопка для ввода данных
+        self.ui.data_input_btn.clicked.connect(self.open_data_input)
+        # Кнопка для аналитики
+        self.ui.analytics_btn.clicked.connect(self.open_analytics)
+
+    def open_data_input(self):
+        """Открытие окна ввода данных"""
+        if self.data_input_window is None:
+            self.data_input_window = DataInputWindow()
+        self.data_input_window.show()
+
+    def open_analytics(self):
+        """Открытие окна аналитики"""
+        if self.analytics_window is None:
+            self.analytics_window = AnalyticsWindow()
+        self.analytics_window.show()
 
     def update_user_data(self, user_id, is_admin):
         self.user_id = user_id
