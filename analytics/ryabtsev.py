@@ -1,130 +1,114 @@
+import pandas as pd
 import numpy as np
-from typing import List, Dict, Tuple
-from sqlalchemy.orm import Session
 from models.data_models import MCKData
 
 
 class RyabtsevMethod:
     def __init__(self):
-        self.weights = None
-        self.normalized_indicators = None
-
-    def normalize_data(self, data: List[float], invert: bool = False):
-        """Нормирование данных к диапазону 0-1 с возможностью инверсии"""
-        if not data:
-            return []
-
-        min_val = min(data)
-        max_val = max(data)
-
-        # Избегаем деления на ноль
-        if max_val == min_val:
-            normalized = [0.5 for _ in data]  # neutral value
-        else:
-            normalized = [(x - min_val) / (max_val - min_val) for x in data]
-
-        if invert:
-            normalized = [1 - x for x in normalized]
-
-        return normalized
-
-    def calculate_integral_index(self, db: Session, years: List[int]) -> Tuple[Dict[int, float], Dict[str, float]]:
-        """Расчет интегрального показателя по методу Рябцева"""
-        # Получаем данные за указанные годы
-        data_records = db.query(MCKData).filter(MCKData.year.in_(years)).order_by(MCKData.year).all()
-
-        if not data_records:
-            return {}, {}
-
-        # Подготавливаем данные для расчета
-        indicators = {
-            'failures_1': [],
-            'failures_2': [],
-            'failures_3': [],
-            'train_losses': [],
-            'investments': [],
-            'passengers_daily': [],
-            'tech_failures': [],
-            'fare_cost': []
+        # Названия для отображения
+        self.indicator_map = {
+            "failures_1": "Отказы 1 категории",
+            "failures_2": "Отказы 2 категории",
+            "failures_3": "Отказы 3 категории",
+            "train_losses": "Поездопотери (поезд/час)",
+            "investments": "Кап. вложения (млн руб.)",
+            "passengers_daily": "Пассажиры в день",
+            "tech_failures": "Технические отказы",
+            "fare_cost": "Стоимость проезда (руб.)",
+            "interval": "Интервал движения (мин)"
         }
 
-        years_list = []
-        for record in data_records:
-            years_list.append(record.year)
-            indicators['failures_1'].append(record.failures_1)
-            indicators['failures_2'].append(record.failures_2)
-            indicators['failures_3'].append(record.failures_3)
-            indicators['train_losses'].append(record.train_losses)
-            indicators['investments'].append(record.investments)
-            indicators['passengers_daily'].append(record.passengers_daily)
-            indicators['tech_failures'].append(record.tech_failures)
-            indicators['fare_cost'].append(record.fare_cost)
+    def get_indicator_name(self, key: str) -> str:
+        return self.indicator_map.get(key, key)
 
-        # Нормируем данные с учетом направленности показателей
-        self.normalized_indicators = {}
-
-        # Показатели где МЕНЬШЕ = ЛУЧШЕ (инвертируем)
-        for key in ['failures_1', 'failures_2', 'failures_3', 'tech_failures', 'train_losses']:
-            self.normalized_indicators[key] = self.normalize_data(indicators[key], invert=True)
-
-        # Показатели где БОЛЬШЕ = ЛУЧШЕ
-        for key in ['investments', 'passengers_daily']:
-            self.normalized_indicators[key] = self.normalize_data(indicators[key], invert=False)
-
-        # Для стоимости проезда - нейтральный показатель (меньше = лучше для пассажиров, но может быть хуже для доходов)
-        self.normalized_indicators['fare_cost'] = self.normalize_data(indicators['fare_cost'], invert=False)
-
-        # Итерационный расчет весов (4 итерации)
-        n_indicators = len(self.normalized_indicators)
-        weights = {key: 1 / n_indicators for key in self.normalized_indicators.keys()}
-
-        for iteration in range(4):
-            # Расчет средних значений для каждого года
-            yearly_means = []
-            for i in range(len(years_list)):
-                weighted_sum = sum(weights[key] * self.normalized_indicators[key][i]
-                                   for key in weights.keys())
-                yearly_means.append(weighted_sum)
-
-            # Пересчет весов на основе корреляции
-            new_weights = {}
-            for key in weights.keys():
-                indicator_values = self.normalized_indicators[key]
-                if len(set(indicator_values)) > 1:  # Проверяем что есть вариация
-                    correlation = np.corrcoef(indicator_values, yearly_means)[0, 1]
-                    if np.isnan(correlation):
-                        correlation = 0
-                    new_weights[key] = abs(correlation)
-                else:
-                    new_weights[key] = 0.1  # Минимальный вес для константных показателей
-
-            # Нормируем веса чтобы сумма = 1
-            total = sum(new_weights.values())
-            if total > 0:
-                weights = {key: new_weights[key] / total for key in new_weights.keys()}
+    def normalize(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Нормировка показателей:
+        - Больше = хуже → обратная нормировка
+        - Больше = лучше → прямая нормировка
+        """
+        norm_df = pd.DataFrame(index=df.index)
+        for col in df.columns:
+            x_min, x_max = df[col].min(), df[col].max()
+            if x_max == x_min:
+                # все значения одинаковы
+                norm_df[col] = 1.0
+                continue
+            if col in ["failures_1", "failures_2", "failures_3",
+                       "train_losses", "tech_failures", "interval"]:
+                norm_df[col] = (x_max - df[col]) / (x_max - x_min)
             else:
-                # Если все корреляции нулевые, используем равные веса
-                weights = {key: 1 / n_indicators for key in new_weights.keys()}
+                norm_df[col] = (df[col] - x_min) / (x_max - x_min)
+        return norm_df
 
-        self.weights = weights
+    def calculate_integral_index(self, db, years):
+        """Расчёт интегрального показателя по методу Рябцева, с делением на сумму весов"""
+        query = (
+            db.query(MCKData)
+            .filter(MCKData.year.in_(years))
+            .order_by(MCKData.year)
+            .all()
+        )
+        if not query:
+            return {}, {}
 
-        # Расчет итогового интегрального показателя
-        integral_indices = []
-        for i in range(len(years_list)):
-            integral_index = sum(weights[key] * self.normalized_indicators[key][i]
-                                 for key in weights.keys())
-            integral_indices.append(integral_index)
+        # создаём DataFrame
+        df = pd.DataFrame([{
+            "year": row.year,
+            "failures_1": row.failures_1,
+            "failures_2": row.failures_2,
+            "failures_3": row.failures_3,
+            "train_losses": row.train_losses,
+            "investments": row.investments,
+            "passengers_daily": row.passengers_daily,
+            "tech_failures": row.tech_failures,
+            "fare_cost": row.fare_cost,
+            "interval": row.interval,
+        } for row in query]).set_index("year")
 
-        # Масштабируем к диапазону 0-100 для удобства
-        max_index = max(integral_indices) if integral_indices else 1
-        scaled_indices = [index * 100 / max_index for index in integral_indices] if max_index > 0 else integral_indices
+        # нормировка
+        X = self.normalize(df)
 
-        return dict(zip(years_list, scaled_indices)), weights
+        # начальное приближение
+        y = X.mean(axis=1)
+        weights = {}
+        max_iter = 100
+        tol = 1e-6
 
-    def get_normalized_data(self) -> Dict[str, List[float]]:
-        """Получение нормированных данных"""
-        return self.normalized_indicators or {}
+        for _ in range(max_iter):
+            corrs = [np.corrcoef(y, X[col])[0, 1] for col in X.columns]
+            corrs = np.nan_to_num(corrs)
+            w = np.abs(corrs)
+            w_sum = np.sum(w)
+            if w_sum == 0:
+                w = np.ones_like(w) / len(w)
+            else:
+                w = w / w_sum  # нормируем веса
+            y_new = (X * w).sum(axis=1)   # делим на сумму весов
 
-    def get_weights(self) -> Dict[str, float]:
-        """Получение весов показателей"""
-        return self.weights or {}
+            if np.allclose(y, y_new, atol=tol):
+                weights = dict(zip(X.columns, w))
+                y = y_new
+                break
+            y = y_new
+
+        # округление для совпадения с Excel
+        y = y.round(4)
+        weights = {k: round(v, 4) for k, v in weights.items()}
+
+        results = y.to_dict()
+        return results, weights
+
+    def get_interpretation(self, weights: dict) -> str:
+        """Текстовое описание результатов"""
+        if not weights:
+            return "Недостаточно данных для анализа."
+
+        sorted_w = sorted(weights.items(), key=lambda x: x[1], reverse=True)
+        text = "Ключевые факторы, влияющие на качество обслуживания:\n\n"
+        for key, val in sorted_w:
+            text += f"- {self.get_indicator_name(key)}: вес {val:.3f}\n"
+
+        top_factor = sorted_w[0][0]
+        text += f"\n⚡ Главный фактор: {self.get_indicator_name(top_factor)}."
+        return text

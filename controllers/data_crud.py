@@ -3,7 +3,7 @@ from models.data_models import MCKData
 
 def create_mck_data(db: Session, year: int, failures_1: int, failures_2: int,
                    failures_3: int, train_losses: float, investments: float,
-                   passengers_daily: int, tech_failures: int, fare_cost: float):
+                   passengers_daily: int, tech_failures: int, fare_cost: float, interval: float):
     """Создание новой записи данных МЦК"""
     try:
         data = MCKData(
@@ -15,7 +15,8 @@ def create_mck_data(db: Session, year: int, failures_1: int, failures_2: int,
             investments=investments,
             passengers_daily=passengers_daily,
             tech_failures=tech_failures,
-            fare_cost=fare_cost
+            fare_cost=fare_cost,
+            interval=interval
         )
         db.add(data)
         db.commit()

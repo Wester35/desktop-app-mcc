@@ -1,6 +1,7 @@
-from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
-                               QLabel, QLineEdit, QTableWidget, QTableWidgetItem,
-                               QMessageBox, QHeaderView, QGridLayout)
+from PySide6.QtWidgets import (
+    QWidget, QVBoxLayout, QPushButton, QLabel, QLineEdit,
+    QTableWidget, QTableWidgetItem, QMessageBox, QHeaderView, QGridLayout
+)
 from PySide6.QtCore import Qt
 from libs.database import get_db
 from controllers.data_crud import create_mck_data, get_all_data, delete_data
@@ -23,8 +24,6 @@ class DataInputWindow(QWidget):
 
         # Сетка для полей ввода
         grid_layout = QGridLayout()
-
-        # Поля ввода
         self.inputs = {}
 
         # Первая строка
@@ -75,6 +74,12 @@ class DataInputWindow(QWidget):
         self.inputs['fare_cost'].setPlaceholderText("0.0")
         grid_layout.addWidget(self.inputs['fare_cost'], 2, 5)
 
+        # Четвертая строка (новое поле)
+        grid_layout.addWidget(QLabel("Интервал движения (мин):"), 3, 0)
+        self.inputs['interval'] = QLineEdit()
+        self.inputs['interval'].setPlaceholderText("0.0")
+        grid_layout.addWidget(self.inputs['interval'], 3, 1)
+
         layout.addLayout(grid_layout)
 
         # Кнопка добавления
@@ -83,23 +88,24 @@ class DataInputWindow(QWidget):
         add_btn.setStyleSheet("background: #4CAF50; color: white; padding: 10px;")
         layout.addWidget(add_btn)
 
-        # Таблица с данными
+        # Таблица
         self.table = QTableWidget()
-        self.table.setColumnCount(10)
-        headers = ["Год", "Отказы 1", "Отказы 2", "Отказы 3", "Поездопотери",
-                   "Кап. вложения", "Пассажиры", "Тех. отказы", "Стоимость", "Действия"]
+        self.table.setColumnCount(11)
+        headers = [
+            "Год", "Отказы 1", "Отказы 2", "Отказы 3", "Поездопотери",
+            "Кап. вложения", "Пассажиры", "Тех. отказы", "Стоимость", "Интервал", "Действия"
+        ]
         self.table.setHorizontalHeaderLabels(headers)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         layout.addWidget(self.table)
 
         self.setLayout(layout)
         self.setWindowTitle("Ввод данных МЦК")
-        self.resize(1400, 600)
+        self.resize(1500, 650)
 
     def add_data(self):
         """Добавление новых данных"""
         try:
-            # Получаем значения из полей ввода
             data = {
                 'year': int(self.inputs['year'].text()),
                 'failures_1': int(self.inputs['failures_1'].text()),
@@ -109,7 +115,8 @@ class DataInputWindow(QWidget):
                 'investments': float(self.inputs['investments'].text()),
                 'passengers_daily': int(self.inputs['passengers_daily'].text()),
                 'tech_failures': int(self.inputs['tech_failures'].text()),
-                'fare_cost': float(self.inputs['fare_cost'].text())
+                'fare_cost': float(self.inputs['fare_cost'].text()),
+                'interval': float(self.inputs['interval'].text())
             }
 
             db = next(get_db())
@@ -125,15 +132,12 @@ class DataInputWindow(QWidget):
             QMessageBox.warning(self, "Ошибка", f"Ошибка добавления: {str(e)}")
 
     def clear_inputs(self):
-        """Очистка полей ввода"""
         for input_field in self.inputs.values():
             input_field.clear()
 
     def load_data(self):
-        """Загрузка данных в таблицу"""
         db = next(get_db())
         data = get_all_data(db)
-
         self.table.setRowCount(len(data))
 
         for row, record in enumerate(data):
@@ -146,15 +150,14 @@ class DataInputWindow(QWidget):
             self.table.setItem(row, 6, QTableWidgetItem(str(record.passengers_daily)))
             self.table.setItem(row, 7, QTableWidgetItem(str(record.tech_failures)))
             self.table.setItem(row, 8, QTableWidgetItem(f"{record.fare_cost:.2f}"))
+            self.table.setItem(row, 9, QTableWidgetItem(f"{record.interval:.4f}"))
 
-            # Кнопка удаления
             delete_btn = QPushButton("Удалить")
             delete_btn.setStyleSheet("background: #f44336; color: white;")
             delete_btn.clicked.connect(lambda checked, y=record.year: self.delete_record(y))
-            self.table.setCellWidget(row, 9, delete_btn)
+            self.table.setCellWidget(row, 10, delete_btn)
 
     def delete_record(self, year):
-        """Удаление записи"""
         try:
             db = next(get_db())
             delete_data(db, year)
