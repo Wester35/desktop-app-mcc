@@ -65,7 +65,7 @@ class DataInputWindow(QWidget):
 
         # Таблица
         self.table = QTableWidget()
-        self.table.setColumnCount(10)
+        self.table.setColumnCount(11)
         headers = [
             "Год", "Отказы 1", "Отказы 2", "Отказы 3", "Поездопотери",
             "Кап. вложения", "Пассажиры", "Тех. отказы", "Стоимость", "Интервал"
