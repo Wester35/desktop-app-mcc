@@ -114,19 +114,96 @@ def normalize_data(data: pd.DataFrame) -> pd.DataFrame:
 def calculate(normalized: pd.DataFrame) -> pd.DataFrame:
     #1
     row_means = normalized.mean(axis=1)
-
+    
     correlation_results = pd.DataFrame(index=normalized.columns, columns=['correlation'])
 
     for column in normalized.columns:
         corr_value = normalized[column].corr(row_means)
         correlation_results.loc[column, 'correlation'] = corr_value
 
-    correlation_results = correlation_results
+    correlation_results = correlation_results.astype(float)
     sum_correlation = correlation_results.values.sum()
-    weights = abs(correlation_results / sum_correlation)
+    weights = abs(correlation_results / sum_correlation).round(15)
 
     #2
-    return weights
+    y2_stage = pd.DataFrame()
+
+    weighted_sum = pd.Series(0, index=normalized.index)
+
+    for column in normalized.columns:
+        column_weight = weights.loc[column, 'correlation']
+        weighted_sum += normalized[column] * column_weight
+
+    y2_stage['weighted_sum'] = weighted_sum
+
+    correlation_results = pd.DataFrame(index=normalized.columns, columns=['correlation'])
+
+    for column in normalized.columns:
+        corr_value = normalized[column].corr(weighted_sum)
+        correlation_results.loc[column, 'correlation'] = corr_value
+
+    sum_correlation = correlation_results.values.sum()
+    weights = abs(correlation_results / sum_correlation).round(15)
+
+    #3
+    y3_stage = pd.DataFrame()
+
+    weighted_sum = pd.Series(0, index=normalized.index)
+
+    for column in normalized.columns:
+        column_weight = weights.loc[column, 'correlation']
+        weighted_sum += normalized[column] * column_weight
+
+    y3_stage['weighted_sum'] = weighted_sum
+
+    correlation_results = pd.DataFrame(index=normalized.columns, columns=['correlation'])
+
+    for column in normalized.columns:
+        corr_value = normalized[column].corr(weighted_sum)
+        correlation_results.loc[column, 'correlation'] = corr_value
+
+    sum_correlation = correlation_results.values.sum()
+    weights = abs(correlation_results / sum_correlation).round(15)
+
+    #4
+    y4_stage = pd.DataFrame()
+    weighted_sum = pd.Series(0, index=normalized.index)
+
+    for column in normalized.columns:
+        column_weight = weights.loc[column, 'correlation']
+        weighted_sum += normalized[column] * column_weight
+
+    y4_stage['weighted_sum'] = weighted_sum
+
+    correlation_results = pd.DataFrame(index=normalized.columns, columns=['correlation'])
+
+    for column in normalized.columns:
+        corr_value = normalized[column].corr(weighted_sum)
+        correlation_results.loc[column, 'correlation'] = corr_value
+
+    sum_correlation = correlation_results.values.sum()
+    weights = abs(correlation_results / sum_correlation).round(15)
+
+    #5
+    y5_stage = pd.DataFrame()
+    weighted_sum = pd.Series(0, index=normalized.index)
+
+    for column in normalized.columns:
+        column_weight = weights.loc[column, 'correlation']
+        weighted_sum += normalized[column] * column_weight
+
+    y5_stage['weighted_sum'] = weighted_sum
+
+    correlation_results = pd.DataFrame(index=normalized.columns, columns=['correlation'])
+
+    for column in normalized.columns:
+        corr_value = normalized[column].corr(weighted_sum)
+        correlation_results.loc[column, 'correlation'] = corr_value
+
+    sum_correlation = correlation_results.values.sum()
+    weights = abs(correlation_results / sum_correlation).round(15)
+
+    return y5_stage
 
 pd.set_option('display.max_rows', None)  # Показать все строки
 pd.set_option('display.max_columns', None)  # Показать все столбцы
