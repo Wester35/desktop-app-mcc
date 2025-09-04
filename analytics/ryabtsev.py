@@ -91,59 +91,9 @@ class RyabtsevMethod:
         self.raw_data_df = df_raw.copy()
 
         # Шаг 1: Нормирование данных
-        df_norm = pd.DataFrame(index=df_raw.index)
-
-        # Правильное нормирование по каждому показателю отдельно:
-        # ... (остальной код нормирования остается без изменений)
-        # 1. failures_1: негативный (max - x)/(max - min)
-        max_val = df_raw['failures_1'].max()
-        min_val = df_raw['failures_1'].min()
-        df_norm['failures_1'] = (max_val - df_raw['failures_1']) / (max_val - min_val) if max_val != min_val else 0.5
-
-        # 2. failures_2: негативный (max - x)/(max - min)
-        max_val = df_raw['failures_2'].max()
-        min_val = df_raw['failures_2'].min()
-        df_norm['failures_2'] = (max_val - df_raw['failures_2']) / (max_val - min_val) if max_val != min_val else 0.5
-
-        # 3. failures_3: негативный (max - x)/(max - min)
-        max_val = df_raw['failures_3'].max()
-        min_val = df_raw['failures_3'].min()
-        df_norm['failures_3'] = (max_val - df_raw['failures_3']) / (max_val - min_val) if max_val != min_val else 0.5
-
-        # 4. train_losses: ПОЗИТИВНЫЙ (x - min)/(max - min)
-        max_val = df_raw['train_losses'].max()
-        min_val = df_raw['train_losses'].min()
-        df_norm['train_losses'] = (df_raw['train_losses'] - min_val) / (
-                max_val - min_val) if max_val != min_val else 0.5
-
-        # 5. tech_failures: ПОЗИТИВНЫЙ (x - min)/(max - min)
-        max_val = df_raw['tech_failures'].max()
-        min_val = df_raw['tech_failures'].min()
-        df_norm['tech_failures'] = (df_raw['tech_failures'] - min_val) / (
-                max_val - min_val) if max_val != min_val else 0.5
-
-        # 6. investments: позитивный (x - min)/(max - min)
-        max_val = df_raw['investments'].max()
-        min_val = df_raw['investments'].min()
-        df_norm['investments'] = (df_raw['investments'] - min_val) / (max_val - min_val) if max_val != min_val else 0.5
-
-        # 7. passengers_daily: позитивный (x - min)/(max - min)
-        max_val = df_raw['passengers_daily'].max()
-        min_val = df_raw['passengers_daily'].min()
-        df_norm['passengers_daily'] = (df_raw['passengers_daily'] - min_val) / (
-                max_val - min_val) if max_val != min_val else 0.5
-
-        # 8. fare_cost: ПОЗИТИВНЫЙ (x - min)/(max - min)
-        max_val = df_raw['fare_cost'].max()
-        min_val = df_raw['fare_cost'].min()
-        df_norm['fare_cost'] = (df_raw['fare_cost'] - min_val) / (max_val - min_val) if max_val != min_val else 0.5
-
-        # 9. interval: ПОЗИТИВНЫЙ (x - min)/(max - min)
-        max_val = df_raw['interval'].max()
-        min_val = df_raw['interval'].min()
-        df_norm['interval'] = (df_raw['interval'] - min_val) / (max_val - min_val) if max_val != min_val else 0.5
-
-        self.normalized_df = df_norm
+        # df_norm = pd.DataFrame(index=df_raw.index)
+        from analytics.ryab import normalize_data as nd
+        df_norm = nd(self.raw_data_df)
 
         indicators = df_norm.columns.tolist()
 
@@ -195,7 +145,7 @@ class RyabtsevMethod:
 
         # Масштабирование результатов
         scale_factor = 1.9744
-        scale_factor_w = 2.0226
+        scale_factor_w = 2
         scaled_final_integral = {}
         for year, value in self.final_integral.items():
             scaled_final_integral[year] = value * scale_factor
