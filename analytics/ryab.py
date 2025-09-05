@@ -5,6 +5,10 @@ import pandas as pd
 
 from typing import List, Dict
 import numpy as np
+from sqlalchemy.orm import Session
+
+from libs.database import get_db
+from models.data_models import MCKData
 
 getcontext().prec = 15
 columns_in_norm = ['failures_1', 'failures_2', 'failures_3',
@@ -28,22 +32,41 @@ def excel_normalize(value, min_val, max_val, reverse=False):
 
     return float(result)
 
-def get_data(years: List[int]) -> pd.DataFrame:
-    data = {
-        'year': [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024],
-        'failures_1': [0, 0, 1, 1, 0, 1, 0, 0, 0],                      #2
-        'failures_2': [20, 10, 3, 2, 5, 0, 4, 6, 1],                    #2
-        'failures_3': [6, 37, 18, 10, 6, 7, 5, 7, 3],                   #2
-        'train_losses': [87.91, 314.17, 53.13, 59.13, 186.01, 188.03, 83.4, 8.45, 0.2],#2
-        'investments': [32561.738, 38310.052, 45684.214, 74860.946, 101163.119,        #1
-                        114465.137, 123292.895, 189559.28, 40742.776],
-        'passengers_daily': [239186, 302919, 354665, 405773, 315804,    #2
-                             409985, 433924, 427944, 452441],
-        'tech_failures': [2, 1, 1, 0, 0, 0, 0, 0, 0],                   #1
-        'fare_cost': [50, 55, 55, 55, 57, 60, 61, 62, 70],              #1
-        'interval': [8, 8, 8, 5.9151, 5.9151, 5.9151, 5.9151, 5.9151, 5.9151] #1
-    }
-    return pd.DataFrame(data)
+def get_data(db: Session, years: List[int]) -> pd.DataFrame:
+    data_records = db.query(MCKData).filter(MCKData.year.in_(years)).order_by(MCKData.year).all()
+
+    # Создаем DataFrame с исходными данными
+    raw_data = []
+    for rec in data_records:
+        raw_data.append({
+            'year': rec.year,
+            'failures_1': rec.failures_1,
+            'failures_2': rec.failures_2,
+            'failures_3': rec.failures_3,
+            'train_losses': rec.train_losses,
+            'investments': rec.investments,
+            'passengers_daily': rec.passengers_daily,
+            'tech_failures': rec.tech_failures,
+            'fare_cost': rec.fare_cost,
+            'interval': rec.interval
+        })
+
+    df_raw = pd.DataFrame(raw_data).set_index('year')
+    # data = {
+    #     'year': [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024],
+    #     'failures_1': [0, 0, 1, 1, 0, 1, 0, 0, 0],                      #2
+    #     'failures_2': [20, 10, 3, 2, 5, 0, 4, 6, 1],                    #2
+    #     'failures_3': [6, 37, 18, 10, 6, 7, 5, 7, 3],                   #2
+    #     'train_losses': [87.91, 314.17, 53.13, 59.13, 186.01, 188.03, 83.4, 8.45, 0.2],#2
+    #     'investments': [32561.738, 38310.052, 45684.214, 74860.946, 101163.119,        #1
+    #                     114465.137, 123292.895, 189559.28, 40742.776],
+    #     'passengers_daily': [239186, 302919, 354665, 405773, 315804,    #2
+    #                          409985, 433924, 427944, 452441],
+    #     'tech_failures': [2, 1, 1, 0, 0, 0, 0, 0, 0],                   #1
+    #     'fare_cost': [50, 55, 55, 55, 57, 60, 61, 62, 70],              #1
+    #     'interval': [8, 8, 8, 5.9151, 5.9151, 5.9151, 5.9151, 5.9151, 5.9151] #1
+    # }
+    return pd.DataFrame(df_raw)
 
 
 def normalize_data(data: pd.DataFrame) -> pd.DataFrame:
@@ -111,7 +134,7 @@ def normalize_data(data: pd.DataFrame) -> pd.DataFrame:
     return normalize_df
 
 
-def calculate(normalized: pd.DataFrame) -> pd.DataFrame:
+def calculate(normalized: pd.DataFrame):
     #1
     row_means = normalized.mean(axis=1)
     
@@ -203,7 +226,7 @@ def calculate(normalized: pd.DataFrame) -> pd.DataFrame:
     sum_correlation = correlation_results.values.sum()
     weights = abs(correlation_results / sum_correlation).round(15)
 
-    return y5_stage
+    return y5_stage, weights
 
 pd.set_option('display.max_rows', None)  # Показать все строки
 pd.set_option('display.max_columns', None)  # Показать все столбцы
@@ -211,11 +234,21 @@ pd.set_option('display.width', None)  # Без ограничения ширин
 pd.set_option('display.max_colwidth', None)  # Без ограничения ширины столбцов
 pd.set_option('display.float_format', '{:.15f}'.format)
 
-years = [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
-print(get_data(years))
-print("\n"+"="*80 + "\n")
-df = get_data(years)
-print(normalize_data(df))
-print("\n"+"="*80 + "\n")
-print(calculate(normalize_data(df)))
+# try:
+#     db = next(get_db())
+#
+#     # Получаем все годы из базы
+#     from controllers.data_crud import get_all_data
+#
+#     data = get_all_data(db)
+#     years = [record.year for record in data]
+#
+#     print(get_data(years))
+#     print("\n"+"="*80 + "\n")
+#     df = get_data(years)
+#     print(normalize_data(df))
+#     print("\n"+"="*80 + "\n")
+#     print(calculate(normalize_data(df)))
+# except Exception:
+#     print(Exception)
 
