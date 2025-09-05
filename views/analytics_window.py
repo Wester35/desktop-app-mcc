@@ -3,16 +3,15 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
                                QHeaderView, QGroupBox, QTextEdit)
 from PySide6.QtCore import Qt
 
+from analytics.ryab import calculate, normalize_data, get_data
 from controllers.data_crud import get_all_data_dataframe
 from libs.database import get_db
-from analytics.ryabtsev import RyabtsevMethod
 from controllers.analysis_crud import save_analysis_result
 
 
 class AnalyticsWindow(QWidget):
     def __init__(self):
         super().__init__()
-        self.ryabtsev = RyabtsevMethod()
         self.setup_ui()
 
     def setup_ui(self):
@@ -78,23 +77,16 @@ class AnalyticsWindow(QWidget):
                 QMessageBox.warning(self, "Ошибка", "Нет данных для анализа!")
                 return
 
-            # Выполняем расчет
-            results, weights = self.ryabtsev.calculate_integral_index(db, years)
+            data_for_normalize = get_data(db, years)
 
+
+            results, weights = calculate(normalize_data(data_for_normalize))
+            results = results['weighted_sum'].to_dict()
+            weights = weights['correlation'].to_dict()
             if not results:
                 QMessageBox.warning(self, "Ошибка", "Не удалось рассчитать показатели!")
                 return
 
-            # ДЛЯ ОТЛАДКИ: получаем нормированные данные и промежуточные результаты
-            normalized_data = self.ryabtsev.get_normalized_data()
-            stage_results = self.ryabtsev.get_all_stage_results()
-            print("№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№№")
-            print("Нормированные данные:")
-            print(normalized_data)
-
-            print("\nРезультаты по этапам:")
-            for stage, result in stage_results.items():
-                print(f"Этап {stage}: {result}")
 
             # Сохраняем результаты
             for year, value in results.items():
@@ -110,13 +102,14 @@ class AnalyticsWindow(QWidget):
             QMessageBox.warning(self, "Ошибка", f"Ошибка расчета: {str(e)}")
             import traceback
             print(traceback.format_exc())  # Для детальной отладки
+
     def display_results(self, results, weights):
         """Отображение результатов в таблицах"""
         # Интегральные показатели
         self.integral_table.setRowCount(len(results))
         for row, (year, value) in enumerate(results.items()):
             self.integral_table.setItem(row, 0, QTableWidgetItem(str(year)))
-            self.integral_table.setItem(row, 1, QTableWidgetItem(f"{value:.2f}"))
+            self.integral_table.setItem(row, 1, QTableWidgetItem(f"{value:.4f}"))
 
         # Веса показателей
         self.weights_table.setRowCount(len(weights))
