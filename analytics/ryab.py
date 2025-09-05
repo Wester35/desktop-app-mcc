@@ -1,14 +1,10 @@
 from decimal import Decimal, getcontext
 import pandas as pd
-
-
-
 from typing import List, Dict
 import numpy as np
 from sqlalchemy.orm import Session
-
-from libs.database import get_db
 from models.data_models import MCKData
+
 
 getcontext().prec = 15
 columns_in_norm = ['failures_1', 'failures_2', 'failures_3',
@@ -52,20 +48,7 @@ def get_data(db: Session, years: List[int]) -> pd.DataFrame:
         })
 
     df_raw = pd.DataFrame(raw_data).set_index('year')
-    # data = {
-    #     'year': [2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024],
-    #     'failures_1': [0, 0, 1, 1, 0, 1, 0, 0, 0],                      #2
-    #     'failures_2': [20, 10, 3, 2, 5, 0, 4, 6, 1],                    #2
-    #     'failures_3': [6, 37, 18, 10, 6, 7, 5, 7, 3],                   #2
-    #     'train_losses': [87.91, 314.17, 53.13, 59.13, 186.01, 188.03, 83.4, 8.45, 0.2],#2
-    #     'investments': [32561.738, 38310.052, 45684.214, 74860.946, 101163.119,        #1
-    #                     114465.137, 123292.895, 189559.28, 40742.776],
-    #     'passengers_daily': [239186, 302919, 354665, 405773, 315804,    #2
-    #                          409985, 433924, 427944, 452441],
-    #     'tech_failures': [2, 1, 1, 0, 0, 0, 0, 0, 0],                   #1
-    #     'fare_cost': [50, 55, 55, 55, 57, 60, 61, 62, 70],              #1
-    #     'interval': [8, 8, 8, 5.9151, 5.9151, 5.9151, 5.9151, 5.9151, 5.9151] #1
-    # }
+
     return pd.DataFrame(df_raw)
 
 
@@ -82,10 +65,8 @@ def normalize_data(data: pd.DataFrame) -> pd.DataFrame:
         max_val = data[column].max()
         min_max_dict[column] = {'min': min_val, 'max': max_val}
 
-    # Создаем новый DataFrame для нормализованных данных
     normalize_df = pd.DataFrame()
 
-    # Нормализуем каждый столбец
     normalize_df['failures_1'] = data['failures_1'].apply(
         lambda x: excel_normalize(x, min_max_dict['failures_1']['min'],
                                   min_max_dict['failures_1']['max'], reverse=True)
@@ -233,22 +214,3 @@ pd.set_option('display.max_columns', None)  # Показать все столб
 pd.set_option('display.width', None)  # Без ограничения ширины
 pd.set_option('display.max_colwidth', None)  # Без ограничения ширины столбцов
 pd.set_option('display.float_format', '{:.15f}'.format)
-
-# try:
-#     db = next(get_db())
-#
-#     # Получаем все годы из базы
-#     from controllers.data_crud import get_all_data
-#
-#     data = get_all_data(db)
-#     years = [record.year for record in data]
-#
-#     print(get_data(years))
-#     print("\n"+"="*80 + "\n")
-#     df = get_data(years)
-#     print(normalize_data(df))
-#     print("\n"+"="*80 + "\n")
-#     print(calculate(normalize_data(df)))
-# except Exception:
-#     print(Exception)
-

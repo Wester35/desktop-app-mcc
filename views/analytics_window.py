@@ -115,7 +115,7 @@ class AnalyticsWindow(QWidget):
         self.weights_table.setRowCount(len(weights))
         for row, (indicator, weight) in enumerate(weights.items()):
             self.weights_table.setItem(row, 0, QTableWidgetItem(self.get_indicator_name(indicator)))
-            self.weights_table.setItem(row, 1, QTableWidgetItem(f"{weight:.4f}"))
+            self.weights_table.setItem(row, 1, QTableWidgetItem(f"{weight:.6f}"))
 
     def display_interpretation(self, weights):
         """Отображение интерпретации результатов"""
