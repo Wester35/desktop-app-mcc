@@ -7,7 +7,7 @@ from analytics.ryab import calculate, normalize_data, get_data
 from controllers.data_crud import get_all_data_dataframe
 from libs.database import get_db
 from controllers.analysis_crud import save_analysis_result
-
+from analytics.corel_matrix import get_correl_matrix
 
 class AnalyticsWindow(QWidget):
     def __init__(self):
@@ -63,6 +63,21 @@ class AnalyticsWindow(QWidget):
         self.setWindowTitle("Аналитика МЦК - Метод Рябцева")
         self.resize(800, 800)
 
+    # def calculate_correl_matrix(self):
+    #     try:
+    #         db = next(get_db())
+    #         from controllers.data_crud import get_all_data
+    #         data = get_all_data(db)
+    #         years = [record.year for record in data]
+    #         if not years:
+    #             QMessageBox.warning(self, "Ошибка", "Нет данных для анализа!")
+    #             return
+    #
+    #         result = get_correl_matrix(db, years)
+    #         return result
+    #     except Exception as e:
+    #         QMessageBox.warning(self, "Ошибка", f"Ошибка расчета: {str(e)}")
+
     def calculate_integral(self):
         """Расчет интегрального показателя"""
         try:
@@ -72,13 +87,11 @@ class AnalyticsWindow(QWidget):
             from controllers.data_crud import get_all_data
             data = get_all_data(db)
             years = [record.year for record in data]
-
             if not years:
                 QMessageBox.warning(self, "Ошибка", "Нет данных для анализа!")
                 return
 
             data_for_normalize = get_data(db, years)
-
 
             results, weights = calculate(normalize_data(data_for_normalize))
             results = results['weighted_sum'].to_dict()
