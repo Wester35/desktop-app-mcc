@@ -1,13 +1,114 @@
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
-from analytics.corel_matrix import get_correl_matrix
+from analytics.corel_matrix import get_correl_matrix, get_second_correl_matrix
 from controllers.data_crud import get_all_data
 from libs.database import get_db
-from models.data_models import AnalysisResult
+from models.data_models import AnalysisResult, MCKData
 from analytics.constants import t_criteria_list
 
 
+def get_second_integral_indicators(correl_matrix: pd.DataFrame, stock_data: pd.DataFrame):
+    integral_correl = correl_matrix['interval'].round(15)
+
+    # Отбираем переменные с корреляцией > 0.3
+    y_columns = integral_correl[
+        (abs(integral_correl) > 0.3) &
+        (integral_correl.index != 'interval')
+    ]
+    x_columns_labels = y_columns.index.tolist()
+    available_columns = [col for col in x_columns_labels if col in stock_data.columns]
+
+    available_columns = [col for col in available_columns if col in stock_data.columns]
+
+    print(f"Отобрано переменных: {len(available_columns)}")
+    print(f"Переменные: {available_columns}")
+
+    return y_columns, stock_data[available_columns]
+
+
+def calc_second_regression():
+    """
+    Вторая регрессионная модель: предсказываем interval на основе других переменных
+    """
+    db = next(get_db())
+
+    # Получаем данные
+    data_records = get_all_data(db)
+    years = [record.year for record in data_records]
+
+    from analytics.ryab import get_data as get_mcc_data
+    stock_data = get_mcc_data(db, years)
+
+    # Используем ВТОРУЮ матрицу корреляций
+    correl_matrix = get_second_correl_matrix(db, years)
+
+    # Получаем коэффициенты и данные для регрессии
+    coefficients, x_data = get_second_integral_indicators(
+        correl_matrix=correl_matrix,
+        stock_data=stock_data
+    )
+
+    # Получаем реальные значения Y (interval) из базы данных
+    y_data = get_y_data_from_db_interval(db, years)  # ИЗМЕНИЛИ НА interval
+
+    print("ДАННЫЕ ДЛЯ ВТОРОЙ РЕГРЕССИИ (предсказание interval):")
+    print(f"Годы анализа: {years}")
+    print(f"\nY переменная (interval из базы):")
+    print(y_data)
+    print(f"\nX переменные (предикторы):")
+    print(x_data)
+    print(f"\nКоэффициенты корреляции с interval:")
+    print(coefficients)
+    print("\n" + "=" * 60)
+
+    # Проверяем совпадение индексов
+    common_years = sorted(list(set(y_data.index).intersection(set(x_data.index))))
+    print(f"Общие годы для анализа: {common_years}")
+    print(f"Количество наблюдений: {len(common_years)}")
+
+    # Фильтруем данные по общим годам
+    y_data = y_data.loc[common_years]
+    x_data = x_data.loc[common_years]
+
+    # Выполняем пошаговое исключение переменных
+    final_results, remaining_vars, eliminated_vars = stepwise_t_test_elimination(y_data, x_data)
+
+    if final_results is not None:
+        # Выводим результаты финальной модели
+        regression_stats, anova_df, coefficients_df, results, y_final, x_final = excel_style_regression(
+            y_data, x_data[remaining_vars], add_constant=True, confidence_level=0.95
+        )
+
+        print("\nВЫВОД ИТОГОВ ВТОРОЙ РЕГРЕССИОННОЙ МОДЕЛИ")
+        print("(предсказание interval)")
+        print(" " * 32 + "Регрессионная статистика")
+        print(regression_stats.to_string(index=False, header=False))
+        print("\n" + " " * 16 + "Дисперсионный анализ")
+        print(anova_df.to_string(index=False))
+        print("\n" + " " * 8 + "Коэффициенты и статистики")
+        print(coefficients_df.to_string(index=False))
+
+        # Дополнительная информация
+        print("\n" + "=" * 60)
+        print("ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ:")
+
+        # Уравнение регрессии
+        equation = f"interval = {results.params['const']:.6f}"
+        for feature in x_final.columns:
+            coef = results.params[feature]
+            sign = " + " if coef >= 0 else " - "
+            equation += f"{sign}{abs(coef):.6f}*{feature}"
+        print(f"Уравнение регрессии:\n{equation}")
+
+        print(f"\nR-квадрат: {results.rsquared:.6f}")
+        print(f"Скорректированный R-квадрат: {results.rsquared_adj:.6f}")
+        print(f"F-статистика: {results.fvalue:.6f} (p-value: {results.f_pvalue:.6f})")
+
+        return results
+    else:
+        print("Не удалось построить регрессионную модель!")
+        return None
 # def get_integral_indicators(correl_matrix: pd.DataFrame, stock_data: pd.DataFrame):
 #     integral_correl = correl_matrix['integrated_index'].round(15)
 #     y_columns = integral_correl[(abs(integral_correl) > 0.2) & (integral_correl.index != 'integrated_index')]
@@ -18,18 +119,23 @@ from analytics.constants import t_criteria_list
 def get_integral_indicators(correl_matrix: pd.DataFrame, stock_data: pd.DataFrame):
     integral_correl = correl_matrix['integrated_index'].round(15)
 
-    # Отбираем переменные с корреляцией > 0.2
+    # Отбираем переменные с корреляцией > 0.3
     y_columns = integral_correl[
         (abs(integral_correl) > 0.3) &
         (integral_correl.index != 'integrated_index')
-        ]
+    ]
     x_columns_labels = y_columns.index.tolist()
     available_columns = [col for col in x_columns_labels if col in stock_data.columns]
 
-    # Добавляем interval в обязательном порядке, если он есть в stock_data
-    if 'interval' in stock_data.columns and 'interval' not in available_columns:
-        print("Добавляем interval в обязательном порядке (корреляция < 0.2)")
-        available_columns.append('interval')
+    # Если interval есть в stock_data, добавляем его в обязательном порядке
+    if 'interval' in stock_data.columns:
+        if 'interval' not in available_columns:
+            print("Добавляем interval в обязательном порядке")
+            available_columns.append('interval')
+        else:
+            print("Interval уже есть в отобранных переменных")
+    # Если interval нет в stock_data, ничего не добавляем
+    # (не выводим сообщение, так как это нормальная ситуация)
 
     # Убедимся, что все колонки существуют в stock_data
     available_columns = [col for col in available_columns if col in stock_data.columns]
@@ -50,6 +156,18 @@ def get_y_data_from_db(db, years):
 
     return y_data
 
+
+def get_y_data_from_db_interval(db, years):
+    """Получаем значения interval из базы данных"""
+    results = db.query(MCKData).filter(MCKData.year.in_(years)).order_by(MCKData.year).all()
+
+    y_data = pd.Series(
+        {result.year: result.interval for result in results},
+        name='interval'
+    )
+
+    print(f"Y данные (interval) из БД: {y_data.values}")
+    return y_data
 
 def excel_style_regression(y_data, x_data, add_constant=True, confidence_level=0.95):
     """Регрессионный анализ в стиле Excel"""
@@ -261,7 +379,35 @@ def calc_regression():
         print(f"Скорректированный R-квадрат: {results.rsquared_adj:.6f}")
         print(f"F-статистика: {results.fvalue:.6f} (p-value: {results.f_pvalue:.6f})")
 
-        return results
+        coefficients_dict = {
+            'const': results.params['const'],
+            **{var: results.params[var] for var in remaining_vars}
+        }
+
+        print("\nКОЭФФИЦИЕНТЫ ДЛЯ РУЧНОГО РАСЧЕТА:")
+        for key, value in coefficients_dict.items():
+            print(f"{key}: {value:.6f}")
+
+        # Функция для ручного расчета
+        def manual_calculation(values_dict):
+            """Ручной расчет с использованием словаря значений"""
+            result = coefficients_dict['const']
+            for var in remaining_vars:
+                if var in values_dict:
+                    result += coefficients_dict[var] * values_dict[var]
+                else:
+                    print(f"Предупреждение: отсутствует {var}")
+            return result
+
+        final_results.coefficients = coefficients_dict
+        final_results.manual_calculate = manual_calculation
+
+        # Пример
+        example_data = {var: 1.0 for var in remaining_vars}
+        example_result = manual_calculation(example_data)
+        print(f"Пример расчета: {example_result:.4f}")
+
+        return final_results
     else:
         print("Не удалось построить регрессионную модель!")
         return None
@@ -278,6 +424,8 @@ if __name__ == "__main__":
     try:
         results = calc_regression()
         print("\nАнализ завершен успешно!")
+        results = calc_second_regression()
+
     except Exception as e:
         print(f"Ошибка: {e}")
         import traceback
