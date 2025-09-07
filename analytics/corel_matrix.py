@@ -14,7 +14,6 @@ def get_data(db: Session, years: List[int]):
     raw_data = []
     for rec in data_records:
         raw_data.append({
-            'year': rec.year,
             'failures_1': rec.failures_1,
             'failures_2': rec.failures_2,
             'failures_3': rec.failures_3,
@@ -35,8 +34,4 @@ def get_correl_matrix(db: Session, years: List[int]):
     correlation_matrix = df.corr().round(15)
     return correlation_matrix
 
-pd.set_option('display.max_rows', None)  # Показать все строки
-pd.set_option('display.max_columns', None)  # Показать все столбцы
-pd.set_option('display.width', None)  # Без ограничения ширины
-pd.set_option('display.max_colwidth', None)  # Без ограничения ширины столбцов
-pd.set_option('display.float_format', '{:.4f}'.format)
+
