@@ -232,8 +232,8 @@ def main_analysis_flow():
                 stock_data=stock_data
             )
 
-            all_vars_from_first_model = x_data_all.columns.tolist()
-            print(f"\nВСЕ переменные из первой модели: {all_vars_from_first_model}")
+            # all_vars_from_first_model = x_data_all.columns.tolist()
+            # print(f"\nВСЕ переменные из первой модели: {all_vars_from_first_model}")
 
             print("\n" + "=" * 80)
             print("ШАГ 2: ВТОРАЯ РЕГРЕССИОННАЯ МОДЕЛЬ (interval)")
@@ -241,7 +241,7 @@ def main_analysis_flow():
 
             # Запускаем вторую регрессию, передавая ВСЕ переменные из первой
             second_model_results, second_model_vars = calc_second_regression(
-                first_model_all_vars=all_vars_from_first_model
+                first_model_all_vars=None
             )
 
             print("\n" + "=" * 80)
