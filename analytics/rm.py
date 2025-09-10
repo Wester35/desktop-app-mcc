@@ -5,9 +5,40 @@ from analytics.corel_matrix import get_correl_matrix, get_second_correl_matrix
 from controllers.data_crud import get_all_data
 from libs.database import get_db
 from models.data_models import AnalysisResult, MCKData
-from analytics.constants import t_criteria_list
+from analytics.constants import t_criteria_list, F_CRITICAL_VALUES
 
 
+def get_f_critical(k1, k2):
+    """
+    Получить критическое значение F-критерия Фишера для α=0.05
+
+    Args:
+        k1: степени свободы числителя (количество факторов)
+        k2: степени свободы знаменателя (n - k1 - 1)
+
+    Returns:
+        Критическое значение F-критерия
+    """
+    # Если точное значение есть в таблице - возвращаем его
+    if k1 in F_CRITICAL_VALUES and k2 in F_CRITICAL_VALUES[k1]:
+        return F_CRITICAL_VALUES[k1][k2]
+
+    # Аппроксимация для больших значений
+    # Для k2 > 10 используем приближение из последней строки таблицы (∞)
+    if k2 > 10:
+        if k1 == 1: return 254.32
+        if k1 == 2: return 19.50
+        if k1 == 3: return 8.53
+        if k1 == 4: return 5.63
+        if k1 == 5: return 4.36
+        if k1 == 6: return 3.67
+        if k1 == 7: return 3.23
+        if k1 == 8: return 2.93
+        if k1 == 9: return 2.71
+        if k1 == 10: return 2.54
+
+    # Консервативное значение по умолчанию
+    return 4.0
 
 def get_integral_indicators(correl_matrix: pd.DataFrame, stock_data: pd.DataFrame):
     integral_correl = correl_matrix['integrated_index'].round(15)
@@ -43,40 +74,36 @@ def get_second_integral_indicators(correl_matrix: pd.DataFrame, stock_data: pd.D
                                    first_model_vars: list = None):
     """
     Получаем показатели для второй регрессии с учетом результатов первой модели
+
+    Args:
+        correl_matrix: матрица корреляций
+        stock_data: данные для анализа
+        first_model_vars: ВСЕ переменные, которые были в первой модели (не только значимые)
     """
     integral_correl = correl_matrix['interval'].round(15)
 
-    # ДЕТАЛЬНАЯ ОТЛАДКА
-    print("=" * 60)
-    print("ДЕТАЛЬНАЯ ОТЛАДКА get_second_integral_indicators:")
-    print("=" * 60)
-    print("Все доступные переменные в correl_matrix:")
-    print(integral_correl.index.tolist())
-    print("\nКоэффициенты корреляции всех переменных с interval:")
-    print(integral_correl.sort_values(ascending=False))
-    print("\nКолонки в stock_data:")
-    print(stock_data.columns.tolist())
-    print("-" * 40)
+    # КРИТИЧЕСКОЕ ИЗМЕНЕНИЕ: Исключаем ВСЕ переменные, которые были в первой модели
+    excluded_vars = first_model_vars if first_model_vars else []
 
-    # ИСПРАВЛЕНИЕ 1: Используем порог > 0.4 как в документе
+    # ДОБАВЛЯЕМ: исключаем также саму целевую переменную первой модели
+    excluded_vars.append('integrated_index')
+
+    print(f"Исключаемые переменные (из первой модели): {excluded_vars}")
+
+    # Отбираем переменные с корреляцией > 0.4 (повышаем порог для большей строгости)
     y_columns = integral_correl[
-        (abs(integral_correl) > 0.4) &  # ← ИЗМЕНИЛИ с 0.3 на 0.4
-        (integral_correl.index != 'interval')
-    ]
-
-    print(f"\nПеременные с корреляцией > 0.4: {y_columns.index.tolist()}")
-    print(f"Их коэффициенты: {y_columns.values}")
+        (abs(integral_correl) > 0.4) &  # Повышаем порог до 0.4
+        (integral_correl.index != 'interval') &
+        (~integral_correl.index.isin(excluded_vars))  # ИСКЛЮЧАЕМ все переменные из первой модели
+        ]
 
     x_columns_labels = y_columns.index.tolist()
     available_columns = [col for col in x_columns_labels if col in stock_data.columns]
 
-    print(f"\nПосле проверки наличия в stock_data: {available_columns}")
-    print("=" * 60)
+    print(f"Отобрано переменных для второй регрессии: {len(available_columns)}")
+    print(f"Переменные: {available_columns}")
 
-    y = stock_data['interval']
-    x = stock_data[available_columns]
-
-    return y, x
+    return y_columns, stock_data[available_columns]
 
 
 def calc_second_regression(first_model_all_vars=None):
@@ -95,7 +122,7 @@ def calc_second_regression(first_model_all_vars=None):
 
     from analytics.ryab import get_data as get_mcc_data
     stock_data = get_mcc_data(db, years)
-    print("77"*70,"\n",stock_data)
+
     # Используем ВТОРУЮ матрицу корреляций
     correl_matrix = get_second_correl_matrix(db, years)
 
@@ -103,7 +130,7 @@ def calc_second_regression(first_model_all_vars=None):
     coefficients, x_data = get_second_integral_indicators(
         correl_matrix=correl_matrix,
         stock_data=stock_data,
-        first_model_vars=None  # Передаем ВСЕ переменные из первой модели
+        first_model_vars=first_model_all_vars  # Передаем ВСЕ переменные из первой модели
     )
 
     # Если после исключения не осталось переменных - выходим
@@ -205,8 +232,8 @@ def main_analysis_flow():
                 stock_data=stock_data
             )
 
-            all_vars_from_first_model = x_data_all.columns.tolist()
-            print(f"\nВСЕ переменные из первой модели: {all_vars_from_first_model}")
+            # all_vars_from_first_model = x_data_all.columns.tolist()
+            # print(f"\nВСЕ переменные из первой модели: {all_vars_from_first_model}")
 
             print("\n" + "=" * 80)
             print("ШАГ 2: ВТОРАЯ РЕГРЕССИОННАЯ МОДЕЛЬ (interval)")
@@ -290,92 +317,10 @@ def excel_style_regression(y_data, x_data, add_constant=True, confidence_level=0
     return regression_stats, anova_df, coefficients_df, results, y_data, x_data
 
 
-
-# def stepwise_t_test_elimination(y_data, x_data):
-#     """
-#     Пошаговое исключение переменных на основе t-критерия Стьюдента
-#     с полным пересчетом модели после каждого исключения
-#     """
-#     n = len(y_data)
-#     current_x_data = x_data.copy()
-#     iteration = 1
-#     eliminated_vars = []
-#
-#     print("НАЧАЛО ПОШАГОВОГО ИСКЛЮЧЕНИЯ ПЕРЕМЕННЫХ ПО t-КРИТЕРИЮ")
-#     print("=" * 60)
-#     print(f"Начальное количество переменных: {len(current_x_data.columns)}")
-#     print(f"Начальные переменные: {list(current_x_data.columns)}")
-#
-#     while len(current_x_data.columns) > 0:
-#         # Выполняем регрессионный анализ с текущим набором переменных
-#         regression_stats, anova_df, coefficients_df, results, y_current, x_current = excel_style_regression(
-#             y_data, current_x_data, add_constant=True, confidence_level=0.95
-#         )
-#
-#         # Получаем только коэффициенты переменных (без константы)
-#         var_coefficients = coefficients_df.iloc[1:].copy()
-#
-#         # Вычисляем степени свободы
-#         m = len(var_coefficients)  # количество переменных
-#         d_f = n - m - 1  # n - m - 1 (минус 1 для константы)
-#
-#         # Получаем критическое значение t-статистики
-#         if d_f > 0 and d_f <= len(t_criteria_list):
-#             t_critical = t_criteria_list[d_f - 1]
-#         else:
-#             t_critical = 2.0  # консервативное значение для больших выборок
-#
-#         print(f"\n--- Итерация {iteration} ---")
-#         print(f"Количество переменных: {m}")
-#         print(f"Степени свободы (d_f): {d_f}")
-#         print(f"Критическое значение t-статистики: {t_critical:.4f}")
-#
-#         # Находим переменную с наибольшей t-статистикой (по модулю)
-#         var_coefficients['abs_t'] = var_coefficients['t-статистика']
-#         max_t_idx = var_coefficients['abs_t'].idxmax()
-#         max_t_var = var_coefficients.loc[max_t_idx, '']
-#         max_t_value = var_coefficients.loc[max_t_idx, 'abs_t']
-#         p_value = var_coefficients.loc[max_t_idx, 'P-Значение']
-#
-#         # Извлекаем название переменной
-#         var_name = max_t_var.split('(')[-1].rstrip(')')
-#
-#         print(f"Переменная с максимальной |t-статистикой|: {var_name} = {max_t_value:.4f}, p = {p_value:.6f}")
-#         # Проверяем, нужно ли исключать переменную
-#         if max_t_value > t_critical:
-#             print(f"ИСКЛЮЧАЕМ {var_name} (|t| = {max_t_value:.4f} > {t_critical:.4f})")
-#             eliminated_vars.append(var_name)
-#             current_x_data = current_x_data.drop(columns=[var_name])
-#             iteration += 1
-#
-#             # Выводим текущую статистику
-#             print(f"Оставшиеся переменные: {list(current_x_data.columns)}")
-#         else:
-#             print(f"ОСТАВЛЯЕМ {var_name} (|t| = {max_t_value:.4f} <= {t_critical:.4f})")
-#             print("Все переменные имеют |t-статистику| <= критического значения!")
-#             break
-#
-#     # Финальная модель
-#     if len(current_x_data.columns) > 0:
-#         print("\n" + "=" * 60)
-#         print("ФИНАЛЬНАЯ МОДЕЛЬ ПОСЛЕ ИСКЛЮЧЕНИЯ:")
-#         print(f"Оставшиеся переменные: {list(current_x_data.columns)}")
-#         print(f"Исключенные переменные: {eliminated_vars}")
-#
-#         # Выполняем финальную регрессию
-#         regression_stats, anova_df, coefficients_df, results, y_final, x_final = excel_style_regression(
-#             y_data, current_x_data, add_constant=True, confidence_level=0.95
-#         )
-#
-#         return results, current_x_data.columns.tolist(), eliminated_vars
-#     else:
-#         print("Все переменные были исключены из модели!")
-#         return None, [], x_data.columns.tolist()
-
 def stepwise_t_test_elimination(y_data, x_data):
     """
     Пошаговое исключение переменных на основе t-критерия Стьюдента
-    с полным пересчетом модели после каждого исключения
+    с проверкой F-критерия Фишера на каждом шаге
     """
     n = len(y_data)
     current_x_data = x_data.copy()
@@ -406,31 +351,38 @@ def stepwise_t_test_elimination(y_data, x_data):
         else:
             t_critical = 2.0  # консервативное значение для больших выборок
 
+        # Получаем критическое значение F-критерия
+        f_critical = get_f_critical(m, d_f)
+        f_value = results.fvalue
+        f_pvalue = results.f_pvalue
+
         print(f"\n--- Итерация {iteration} ---")
         print(f"Количество переменных: {m}")
         print(f"Степени свободы (d_f): {d_f}")
         print(f"Критическое значение t-статистики: {t_critical:.4f}")
+        print(f"F-статистика: {f_value:.4f}, F-критическое: {f_critical:.4f}, p-value: {f_pvalue:.6f}")
 
-        # ИСПРАВЛЕНИЕ 2: Исключаем переменные с НИЗКОЙ t-статистикой (а не высокой)
-        # Находим переменную с наименьшей t-статистикой (по модулю)
-        var_coefficients['abs_t'] = abs(var_coefficients['t-статистика'])
-        min_t_idx = var_coefficients['abs_t'].idxmin()
-        min_t_var = var_coefficients.loc[min_t_idx, '']
-        min_t_value = var_coefficients.loc[min_t_idx, 'abs_t']
-        p_value = var_coefficients.loc[min_t_idx, 'P-Значение']
+        # Проверяем значимость модели по F-критерию
+        if f_value < f_critical:
+            print(f"МОДЕЛЬ НЕЗНАЧИМА по F-критерию! (F < F_крит)")
+            print("Прекращаем исключение переменных")
+            break
+
+        # Находим переменную с наибольшей t-статистикой (по модулю)
+        var_coefficients['abs_t'] = var_coefficients['t-статистика']
+        max_t_idx = var_coefficients['abs_t'].idxmax()
+        max_t_var = var_coefficients.loc[max_t_idx, '']
+        max_t_value = var_coefficients.loc[max_t_idx, 'abs_t']
+        p_value = var_coefficients.loc[max_t_idx, 'P-Значение']
 
         # Извлекаем название переменной
-        var_name = min_t_var.split('(')[-1].rstrip(')')
+        var_name = max_t_var.split('(')[-1].rstrip(')')
 
-        print(f"Переменная с минимальной |t-статистикой|: {var_name} = {min_t_value:.4f}, p = {p_value:.6f}")
-
-        # ИСПРАВЛЕНИЕ 3: Проверяем F-критерий модели
-        f_critical = 5.14  # Для d_f = 6, как в документе
-        print(f"F-статистика модели: {results.fvalue:.4f}, F-критическое: {f_critical:.4f}")
+        print(f"Переменная с максимальной |t-статистикой|: {var_name} = {max_t_value:.4f}, p = {p_value:.6f}")
 
         # Проверяем, нужно ли исключать переменную
-        if min_t_value < t_critical and results.fvalue > f_critical:
-            print(f"ИСКЛЮЧАЕМ {var_name} (|t| = {min_t_value:.4f} < {t_critical:.4f} и F > F_крит)")
+        if max_t_value > t_critical:
+            print(f"ИСКЛЮЧАЕМ {var_name} (|t| = {max_t_value:.4f} > {t_critical:.4f})")
             eliminated_vars.append(var_name)
             current_x_data = current_x_data.drop(columns=[var_name])
             iteration += 1
@@ -438,8 +390,8 @@ def stepwise_t_test_elimination(y_data, x_data):
             # Выводим текущую статистику
             print(f"Оставшиеся переменные: {list(current_x_data.columns)}")
         else:
-            print(f"ОСТАВЛЯЕМ {var_name} (|t| = {min_t_value:.4f} >= {t_critical:.4f} или F <= F_крит)")
-            print("Завершаем исключение переменных!")
+            print(f"ОСТАВЛЯЕМ {var_name} (|t| = {max_t_value:.4f} <= {t_critical:.4f})")
+            print("Все переменные имеют |t-статистику| <= критического значения!")
             break
 
     # Финальная модель
@@ -449,17 +401,28 @@ def stepwise_t_test_elimination(y_data, x_data):
         print(f"Оставшиеся переменные: {list(current_x_data.columns)}")
         print(f"Исключенные переменные: {eliminated_vars}")
 
-        # Выполняем финальную регрессию
+        # Проверяем финальную модель по F-критерию
         regression_stats, anova_df, coefficients_df, results, y_final, x_final = excel_style_regression(
             y_data, current_x_data, add_constant=True, confidence_level=0.95
         )
+
+        m_final = len(x_final.columns)
+        d_f_final = n - m_final - 1
+        f_critical_final = get_f_critical(m_final, d_f_final)
+        f_value_final = results.fvalue
+
+        print(f"Проверка финальной модели по F-критерию:")
+        print(f"F = {f_value_final:.4f}, F_крит = {f_critical_final:.4f}")
+
+        if f_value_final >= f_critical_final:
+            print("Финальная модель ЗНАЧИМА по F-критерию ✓")
+        else:
+            print("Финальная модель НЕЗНАЧИМА по F-критерию ✗")
 
         return results, current_x_data.columns.tolist(), eliminated_vars
     else:
         print("Все переменные были исключены из модели!")
         return None, [], x_data.columns.tolist()
-
-
 def get_y_data_from_db(db, years):
     """Получаем реальные значения integrated_index из базы данных"""
     results = db.query(AnalysisResult).filter(AnalysisResult.year.in_(years)).order_by(AnalysisResult.year).all()
