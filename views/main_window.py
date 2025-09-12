@@ -5,6 +5,7 @@ from views.analytics_window import AnalyticsWindow
 from views.app_manager import app_manager
 from controllers.crud import delete_user_session
 from views.data_input_window import DataInputWindow
+from views.prokofiev_window import ProkofievWindow
 from views.register_window import Register
 
 
@@ -20,6 +21,7 @@ class MainWindow(QWidget):
         self.session_was_saved = False
         self.connect_signals()
         self.data_input_window = None
+        self.prokofiev_window = None
         self.analytics_window = None
         self.setWindowIcon(QPixmap("ui/resources/app_icon.png"))
 
@@ -34,6 +36,13 @@ class MainWindow(QWidget):
         self.ui.data_input_btn.clicked.connect(self.open_data_input)
         # Кнопка для аналитики
         self.ui.analytics_btn.clicked.connect(self.open_analytics)
+
+        self.ui.prokofiev_button.clicked.connect(self.open_prokofiev_window)
+
+    def open_prokofiev_window(self):
+        if self.prokofiev_window is None:
+            self.prokofiev_window = ProkofievWindow()
+        self.prokofiev_window.show()
 
     def open_data_input(self):
         """Открытие окна ввода данных"""
