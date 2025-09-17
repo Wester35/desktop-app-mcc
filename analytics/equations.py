@@ -59,48 +59,98 @@ def build_regression(df: pd.DataFrame, y_col: str, candidate_x: list):
 
 
 def iterative_regression(df: pd.DataFrame, y_col: str, candidate_x: list):
-    """Итеративное исключение факторов по t-критерию"""
+    """Итеративное исключение факторов по t-критерию (как в Excel)"""
     n = len(df)
     removed = []
+    iteration = 1
 
-    while True:
-        model = build_regression(df, y_col, candidate_x)
+    print(f"\nНачальные кандидаты: {candidate_x}")
+
+    while candidate_x:
+        # Строим модель
+        X = sm.add_constant(df[candidate_x])
+        y = df[y_col]
+        model = sm.OLS(y, X).fit()
+
         m = len(candidate_x)
         dfree = n - m - 1
 
-        # t критическое значение
+        # Получаем t-критическое значение
         if 1 <= dfree <= len(t_criteria_list):
             t_crit = t_criteria_list[dfree - 1]
         else:
-            t_crit = t_criteria_list[-1]  # если df слишком большое
+            t_crit = t_criteria_list[-1]
 
-        # Проверка коэффициентов (без константы)
+        print(f"\n--- Шаг {iteration} ---")
+        print(f"Факторы: {candidate_x}")
+        print(f"t-критическое: {t_crit:.6f}")
+        print(f"Степени свободы: {dfree}")
+
+        # Проверяем коэффициенты (исключая константу)
         t_values = model.tvalues.drop("const")
-        min_abs_t = t_values.min()
+        p_values = model.pvalues.drop("const")
 
+        print("t-статистики факторов:")
+        for factor in candidate_x:
+            t_val = t_values[factor]
+            p_val = p_values[factor]
+            print(f"  {factor}: t = {t_val:.6f}, p = {p_val:.6f}")
+
+        # Находим фактор с наименьшей по модулю t-статистикой
+        min_abs_t = float('inf')
+        weakest_factor = None
+
+        for factor in candidate_x:
+            abs_t = abs(t_values[factor])
+            if abs_t < min_abs_t:
+                min_abs_t = abs_t
+                weakest_factor = factor
+
+        print(f"Минимальная |t|: {min_abs_t:.6f} (фактор: {weakest_factor})")
+
+        # Проверяем, нужно ли исключать фактор
         if min_abs_t < t_crit:
-            # удаляем самый слабый фактор
-            weakest_factor = t_values.idxmin()
+            print(f"→ Исключаем {weakest_factor} (|t| < t_crit)")
             candidate_x.remove(weakest_factor)
             removed.append(weakest_factor)
+            iteration += 1
         else:
+            print("→ Все факторы значимы, останавливаемся")
             break
 
-    # Проверка по F-критерию Фишера
-    f_fact = model.fvalue
-    k1 = len(candidate_x)
-    k2 = n - k1 - 1
-    f_crit = F_CRITICAL_VALUES.get(k1, {}).get(k2, None)
+    # Финальная модель
+    if candidate_x:
+        X = sm.add_constant(df[candidate_x])
+        y = df[y_col]
+        final_model = sm.OLS(y, X).fit()
 
-    return {
-        "equation": model.params.to_dict(),
-        "t_values": model.tvalues.to_dict(),
-        "f_fact": f_fact,
-        "f_crit": f_crit,
-        "r2": model.rsquared,
-        "removed": removed,
-        "final_factors": candidate_x
-    }
+        # Проверка по F-критерию Фишера
+        f_fact = final_model.fvalue
+        k1 = len(candidate_x)
+        k2 = n - k1 - 1
+        f_crit = F_CRITICAL_VALUES.get(k1, {}).get(k2, None)
+
+        return {
+            "equation": final_model.params.to_dict(),
+            "t_values": final_model.tvalues.to_dict(),
+            "f_fact": f_fact,
+            "f_crit": f_crit,
+            "r2": final_model.rsquared,
+            "removed": removed,
+            "final_factors": candidate_x,
+            "model": final_model
+        }
+    else:
+        return {
+            "equation": {"const": y.mean()},
+            "t_values": {},
+            "f_fact": 0,
+            "f_crit": None,
+            "r2": 0,
+            "removed": removed,
+            "final_factors": [],
+            "model": None
+        }
 
 
 def build_integral_model(db: Session, years: List[int]):
