@@ -58,4 +58,4 @@ def calculate_final_predict_integral(db: Session):
 if __name__ == "__main__":
     db = next(get_db())
     calculate_final_predict(db)
-    calculate_final_predict_2(db)
+    calculate_final_predict_integral(db)
