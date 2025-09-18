@@ -168,3 +168,80 @@ def check_existing_admin():
         return False
 
     return True
+
+
+def get_user_data(user_id):
+    """Получение данных пользователя по ID"""
+    session = SessionLocal()
+    try:
+        user = session.query(User).filter(User.id == user_id).first()
+        if user:
+            user_data = {
+                'id': user.id,
+                'login': user.login,
+                'last_name': user.last_name,
+                'first_name': user.first_name,
+                'middle_name': user.middle_name,
+                'phone': user.phone,
+                'is_admin': user.is_admin,
+            }
+            return user_data
+        else:
+            return None
+    except Exception as e:
+        print(f"Ошибка получения данных пользователя: {e}")
+        return None
+    finally:
+        session.close()
+
+
+def update_user_password(user_id, current_password, new_password):
+    """Обновление пароля пользователя"""
+    session = SessionLocal()
+    try:
+        user = session.query(User).filter(User.id == user_id).first()
+        if not user:
+            return False
+
+        # Проверяем текущий пароль
+        if not check_password_hash(user.password, current_password):
+            return False
+
+        # Хешируем новый пароль
+        hashed_password = generate_password_hash(new_password)
+        user.password = hashed_password
+
+        session.commit()
+        return True
+
+    except Exception as e:
+        print(f"Ошибка изменения пароля: {e}")
+        session.rollback()
+        return False
+    finally:
+        session.close()
+
+
+def get_user_full_name(user_id):
+    """Получение полного имени пользователя"""
+    session = SessionLocal()
+    try:
+        user = session.query(User).filter(User.id == user_id).first()
+        if user:
+            # Собираем полное имя из компонентов
+            name_parts = []
+            if user.last_name:
+                name_parts.append(user.last_name)
+            if user.first_name:
+                name_parts.append(user.first_name)
+            if user.middle_name:
+                name_parts.append(user.middle_name)
+
+            return ' '.join(name_parts) if name_parts else user.login
+        else:
+            return "Неизвестный пользователь"
+    except Exception as e:
+        print(f"Ошибка получения имени пользователя: {e}")
+        return "Ошибка загрузки"
+    finally:
+        session.close()
