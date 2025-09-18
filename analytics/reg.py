@@ -76,7 +76,7 @@ def iterative_regression(df: pd.DataFrame, y_col: str, candidate_x: list):
 
         # Проверка коэффициентов (без константы)
         t_values = model.tvalues.drop("const")
-        min_abs_t = t_values.abs().min()
+        min_abs_t = t_values.min()
 
         if min_abs_t < t_crit:
             # удаляем самый слабый фактор
@@ -110,7 +110,7 @@ def build_integral_model(db: Session, years: List[int]):
 
     corr_matrix = get_correl_matrix(db, years)
     corr_with_y = corr_matrix["integrated_index"].drop("integrated_index")
-    candidates = corr_with_y[abs(corr_with_y) >= 0.3].index.tolist()
+    candidates = corr_with_y[abs(corr_with_y) >= 0.2].index.tolist()
 
     y_data = get_y_data_from_db(db, years)
     df["integrated_index"] = y_data.values
@@ -125,7 +125,7 @@ def build_interval_model(db: Session, years: List[int]):
 
     corr_matrix = get_second_correl_matrix(db, years)
     corr_with_y = corr_matrix["interval"].drop("interval")
-    candidates = corr_with_y[abs(corr_with_y) >= 0.3].index.tolist()
+    candidates = corr_with_y[abs(corr_with_y) >= 0.2].index.tolist()
 
     y_data = get_y_data_from_db_interval(db, years)
     df["interval"] = y_data.values

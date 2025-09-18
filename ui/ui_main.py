@@ -21,7 +21,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(716, 492)
+        MainWindow.resize(512, 383)
         self.pushButton = QPushButton(MainWindow)
         self.pushButton.setObjectName(u"pushButton")
         self.pushButton.setGeometry(QRect(20, 30, 131, 41))
@@ -30,10 +30,19 @@ class Ui_MainWindow(object):
         self.pushButton_2.setGeometry(QRect(190, 30, 131, 41))
         self.data_input_btn = QPushButton(MainWindow)
         self.data_input_btn.setObjectName(u"data_input_btn")
-        self.data_input_btn.setGeometry(QRect(20, 90, 131, 41))
+        self.data_input_btn.setGeometry(QRect(360, 30, 131, 41))
         self.analytics_btn = QPushButton(MainWindow)
         self.analytics_btn.setObjectName(u"analytics_btn")
-        self.analytics_btn.setGeometry(QRect(190, 90, 131, 41))
+        self.analytics_btn.setGeometry(QRect(20, 100, 211, 41))
+        self.prokofiev_button = QPushButton(MainWindow)
+        self.prokofiev_button.setObjectName(u"prokofiev_button")
+        self.prokofiev_button.setGeometry(QRect(280, 100, 211, 41))
+        self.integral_charts = QPushButton(MainWindow)
+        self.integral_charts.setObjectName(u"integral_charts")
+        self.integral_charts.setGeometry(QRect(20, 170, 211, 41))
+        self.interval_charts = QPushButton(MainWindow)
+        self.interval_charts.setObjectName(u"interval_charts")
+        self.interval_charts.setGeometry(QRect(280, 170, 211, 41))
 
         self.retranslateUi(MainWindow)
 
@@ -42,9 +51,12 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainApp", None))
-        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"PushButton", None))
-        self.data_input_btn.setText(QCoreApplication.translate("MainWindow", u"data_input_btn", None))
-        self.analytics_btn.setText(QCoreApplication.translate("MainWindow", u"analytics_btn", None))
+        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f", None))
+        self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"\u0412\u044b\u0445\u043e\u0434 \u0441 \u0430\u043a\u043a\u0430\u0443\u043d\u0442\u0430", None))
+        self.data_input_btn.setText(QCoreApplication.translate("MainWindow", u"\u0412\u0432\u043e\u0434 \u0434\u0430\u043d\u043d\u044b\u0445", None))
+        self.analytics_btn.setText(QCoreApplication.translate("MainWindow", u"\u0418\u043d\u0442\u0435\u0433\u0440\u0430\u043b\u044c\u043d\u044b\u0435 \u043f\u043e\u043a\u0430\u0437\u0430\u0442\u0435\u043b\u0438", None))
+        self.prokofiev_button.setText(QCoreApplication.translate("MainWindow", u"\u041f\u0440\u043e\u0433\u043d\u043e\u0437 \u0441\u0440./\u0441\u0443\u0442. \u0438\u043d\u0442\u0435\u0440\u0432\u0430\u043b\u0430", None))
+        self.integral_charts.setText(QCoreApplication.translate("MainWindow", u"\u0418\u043d\u0442\u0435\u0433\u0440\u0430\u043b\u044c\u043d\u044b\u0435 \u0433\u0440\u0430\u0444\u0438\u043a\u0438", None))
+        self.interval_charts.setText(QCoreApplication.translate("MainWindow", u"\u0421\u0440./\u0441\u0443\u0442. \u0433\u0440\u0430\u0444\u0438\u043a\u0438", None))
     # retranslateUi
 

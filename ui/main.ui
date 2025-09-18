@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>716</width>
-    <height>492</height>
+    <width>512</width>
+    <height>383</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>PushButton</string>
+    <string>Регистрация</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_2">
@@ -36,33 +36,72 @@
     </rect>
    </property>
    <property name="text">
-    <string>PushButton</string>
+    <string>Выход с аккаунта</string>
    </property>
   </widget>
   <widget class="QPushButton" name="data_input_btn">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>90</y>
+     <x>360</x>
+     <y>30</y>
      <width>131</width>
      <height>41</height>
     </rect>
    </property>
    <property name="text">
-    <string>data_input_btn</string>
+    <string>Ввод данных</string>
    </property>
   </widget>
   <widget class="QPushButton" name="analytics_btn">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>90</y>
-     <width>131</width>
+     <x>20</x>
+     <y>100</y>
+     <width>211</width>
      <height>41</height>
     </rect>
    </property>
    <property name="text">
-    <string>analytics_btn</string>
+    <string>Интегральные показатели</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="prokofiev_button">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>100</y>
+     <width>211</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Прогноз ср./сут. интервала</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="integral_charts">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>170</y>
+     <width>211</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Интегральные графики</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="interval_charts">
+   <property name="geometry">
+    <rect>
+     <x>280</x>
+     <y>170</y>
+     <width>211</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Ср./сут. графики</string>
    </property>
   </widget>
  </widget>
