@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
         MainWindow.resize(512, 383)
         self.pushButton = QPushButton(MainWindow)
         self.pushButton.setObjectName(u"pushButton")
-        self.pushButton.setGeometry(QRect(20, 30, 131, 41))
+        self.pushButton.setGeometry(QRect(20, 240, 211, 41))
         self.pushButton_2 = QPushButton(MainWindow)
         self.pushButton_2.setObjectName(u"pushButton_2")
         self.pushButton_2.setGeometry(QRect(190, 30, 131, 41))
@@ -43,6 +43,9 @@ class Ui_MainWindow(object):
         self.interval_charts = QPushButton(MainWindow)
         self.interval_charts.setObjectName(u"interval_charts")
         self.interval_charts.setGeometry(QRect(280, 170, 211, 41))
+        self.profile_btn = QPushButton(MainWindow)
+        self.profile_btn.setObjectName(u"profile_btn")
+        self.profile_btn.setGeometry(QRect(20, 30, 131, 41))
 
         self.retranslateUi(MainWindow)
 
@@ -58,5 +61,6 @@ class Ui_MainWindow(object):
         self.prokofiev_button.setText(QCoreApplication.translate("MainWindow", u"\u041f\u0440\u043e\u0433\u043d\u043e\u0437 \u0441\u0440./\u0441\u0443\u0442. \u0438\u043d\u0442\u0435\u0440\u0432\u0430\u043b\u0430", None))
         self.integral_charts.setText(QCoreApplication.translate("MainWindow", u"\u0418\u043d\u0442\u0435\u0433\u0440\u0430\u043b\u044c\u043d\u044b\u0435 \u0433\u0440\u0430\u0444\u0438\u043a\u0438", None))
         self.interval_charts.setText(QCoreApplication.translate("MainWindow", u"\u0421\u0440./\u0441\u0443\u0442. \u0433\u0440\u0430\u0444\u0438\u043a\u0438", None))
+        self.profile_btn.setText(QCoreApplication.translate("MainWindow", u"\u041f\u0440\u043e\u0444\u0438\u043b\u044c", None))
     # retranslateUi
 

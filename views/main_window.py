@@ -5,6 +5,7 @@ from views.analytics_window import AnalyticsWindow
 from views.app_manager import app_manager
 from controllers.crud import delete_user_session
 from views.data_input_window import DataInputWindow
+from views.profile_window import ProfileWindow
 from views.prokofiev_window import ProkofievWindow
 from views.register_window import Register
 
@@ -23,7 +24,16 @@ class MainWindow(QWidget):
         self.data_input_window = None
         self.prokofiev_window = None
         self.analytics_window = None
+        self.profile_window = None
         self.setWindowIcon(QPixmap("ui/resources/app_icon.png"))
+        self.setup_ui_based_on_permissions()
+
+    def setup_ui_based_on_permissions(self):
+        if not self.is_admin:
+            self.ui.pushButton.hide()
+        else:
+            self.ui.pushButton.show()
+
 
     def set_session_saved(self, saved):
         self.session_was_saved = saved
@@ -31,13 +41,17 @@ class MainWindow(QWidget):
     def connect_signals(self):
         self.ui.pushButton.clicked.connect(self.show_register_window)
         self.ui.pushButton_2.clicked.connect(self.logout)
-        #############################
-        # Кнопка для ввода данных
+
         self.ui.data_input_btn.clicked.connect(self.open_data_input)
-        # Кнопка для аналитики
         self.ui.analytics_btn.clicked.connect(self.open_analytics)
 
         self.ui.prokofiev_button.clicked.connect(self.open_prokofiev_window)
+        self.ui.profile_btn.clicked.connect(self.open_profile_window)
+
+    def open_profile_window(self):
+        if self.profile_window is None:
+            self.profile_window = ProfileWindow(self.user_id, self.is_admin)
+        self.profile_window.show()
 
     def open_prokofiev_window(self):
         if self.prokofiev_window is None:
@@ -65,6 +79,7 @@ class MainWindow(QWidget):
         self.register_window.show()
 
     def logout(self):
+        self.ui.pushButton.hide()
         delete_user_session()
         app_manager.logout_signal.emit(self.session_was_saved)
         self.close()
