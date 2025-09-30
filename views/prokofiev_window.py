@@ -22,10 +22,22 @@ class ProkofievWindow(QWidget):
         layout = QVBoxLayout()
 
         # Заголовок
-        title = QLabel("Аналитический модуль - Метод Рябцева")
-        title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("font-size: 18px; font-weight: bold; margin: 10px;")
-        layout.addWidget(title)
+        # title = QLabel("Аналитический модуль - Метод Рябцева")
+        # title.setAlignment(Qt.AlignCenter)
+        # title.setStyleSheet("font-size: 18px; font-weight: bold; margin: 10px;")
+        # layout.addWidget(title)
+
+        # Кнопка расчета
+        calc_btn = QPushButton("Рассчитать первую модель")
+        calc_btn.clicked.connect(self.calculate_equation)
+        calc_btn.setStyleSheet("background: #2196F3; color: white; padding: 10px;")
+        layout.addWidget(calc_btn)
+
+        result_label = QLabel("Точечный прогноз среднесуточного интервала по модели: ")
+        self.result_label = result_label
+        self.result_label.setAlignment(Qt.AlignCenter)
+        self.result_label.setStyleSheet("font-size: 18px; font-weight: bold; margin: 10px;")
+        layout.addWidget(result_label)
 
         # Кнопка расчета
         calc_btn = QPushButton("Рассчитать ср.сут. интервал")

@@ -101,6 +101,15 @@ class IntegralRegressionWindow(QWidget):
         output_lines.append(f"Факторы: {', '.join(selected)}")
         output_lines.append("")
         output_lines.append("Уравнение:")
+        terms = []
+        for k, v in result["equation"].items():
+            if k == "const":
+                tyt = round(v, 6)
+            else:
+                coef = round(v, 6)
+                sign = "+" if coef >= 0 else "-"
+                terms.append(f" {sign} {abs(coef)}*{k}")
+        output_lines.append(f"y = {round(tyt, 6)}" + "".join(terms))
         output_lines.append(str(result["equation"]))
         output_lines.append("")
         output_lines.append(f"R² = {result['r2']:.4f}")
