@@ -1,10 +1,12 @@
+from pathlib import Path
+
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QPushButton, QTableWidget,
     QTableWidgetItem, QCheckBox, QTextEdit, QHBoxLayout, QScrollArea
 )
 from PySide6.QtCore import Qt
 import pandas as pd
-
+import pickle
 from libs.database import get_db
 from controllers.data_crud import get_all_data
 from analytics.corel_matrix import get_correl_matrix
@@ -91,7 +93,8 @@ class IntegralRegressionWindow(QWidget):
         iterative = self.auto_step_checkbox.isChecked()
 
         result = build_integral_model(self.db, self.years, selected, iterative=iterative)
-
+        with open(Path(__file__).parent.parent.absolute() / 'data/integral.pkl', 'wb') as file:
+            pickle.dump(result, file)
         # Перенаправляем красивый вывод в QTextEdit
         output_lines = []
         output_lines.append("=== Результат регрессии ===")

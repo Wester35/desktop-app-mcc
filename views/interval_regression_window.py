@@ -1,3 +1,6 @@
+import pickle
+from pathlib import Path
+
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QPushButton, QTableWidget,
     QTableWidgetItem, QCheckBox, QTextEdit, QHBoxLayout
@@ -91,6 +94,8 @@ class IntervalRegressionWindow(QWidget):
 
         result = build_interval_model(self.db, self.years, selected, iterative=iterative)
 
+        with open(Path(__file__).parent.parent.absolute() / 'data/interval.pkl', 'wb') as file:
+            pickle.dump(result, file)
 
         # Перенаправляем красивый вывод в QTextEdit
         output_lines = []
