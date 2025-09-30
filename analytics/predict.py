@@ -5,13 +5,8 @@ from analytics.prokofiev import predict_prokofiev
 from libs.database import get_db
 
 
-def calculate_final_predict(db: Session):
-    from controllers.data_crud import get_all_data
-    data = get_all_data(db)
-    years = [record.year for record in data]
-    interval_model = build_interval_model(db, years)
-
-    equation_names = [key for key in interval_model['equation'].keys() if key != 'const']
+def calculate_final_predict(db: Session, dict):
+    equation_names = [key for key in dict['equation'].keys() if key != 'const']
 
     res_name = []
     for name in equation_names:
@@ -19,10 +14,10 @@ def calculate_final_predict(db: Session):
         res_name.append(result)
 
 
-    final_prediction = interval_model['equation']['const']
+    final_prediction = dict['equation']['const']
 
     for i, name in enumerate(equation_names):
-        coefficient = interval_model['equation'][name]
+        coefficient = dict['equation'][name]
         prediction = res_name[i]
         final_prediction += coefficient * prediction
 
@@ -30,13 +25,9 @@ def calculate_final_predict(db: Session):
 
     return final_prediction
 
-def calculate_final_predict_integral(db: Session):
-    from controllers.data_crud import get_all_data
-    data = get_all_data(db)
-    years = [record.year for record in data]
-    interval_model = build_integral_model(db, years)
+def calculate_final_predict_integral(db: Session, dict):
 
-    equation_names = [key for key in interval_model['equation'].keys() if key != 'const']
+    equation_names = [key for key in dict['equation'].keys() if key != 'const']
 
     res_name = []
     for name in equation_names:
@@ -44,10 +35,10 @@ def calculate_final_predict_integral(db: Session):
         res_name.append(result)
 
 
-    final_prediction = interval_model['equation']['const']
+    final_prediction = dict['equation']['const']
 
     for i, name in enumerate(equation_names):
-        coefficient = interval_model['equation'][name]
+        coefficient = dict['equation'][name]
         prediction = res_name[i]
         final_prediction += coefficient * prediction
 

@@ -1,3 +1,6 @@
+import pickle
+from pathlib import Path
+
 from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton,
                                QLabel, QTableWidget, QTableWidgetItem, QMessageBox,
                                QHeaderView, QGroupBox, QTextEdit)
@@ -47,9 +50,10 @@ class ProkofievWindow(QWidget):
         """Расчет интегрального показателя"""
         try:
             db = next(get_db())
-
+            with open(Path(__file__).parent.parent.absolute() / 'data/interval.pkl', 'rb') as file:
+                loaded_dict = pickle.load(file)
             self.result_label.setText("Точечный прогноз среднесуточного интервала по модели: " +
-                                      str(calculate_final_predict(db)))
+                                      str(calculate_final_predict(db, loaded_dict)))
 
         except Exception as e:
             QMessageBox.warning(self, "Ошибка", f"Ошибка расчета: {str(e)}")
