@@ -23,7 +23,7 @@ def get_data_1(db: Session, years: List[int]):
             'tech_failures': rec.tech_failures,
             'fare_cost': rec.fare_cost,
             'interval': rec.interval,
-            'integrated_index': integral_dict.get(rec.year)  # Добавляем интегральный показатель
+            'integrated_index': integral_dict.get(rec.year)
         })
 
     return raw_data
@@ -42,6 +42,7 @@ def get_data_2(db: Session, years: List[int]):
             'investments': rec.investments,
             'passengers_daily': rec.passengers_daily,
             'tech_failures': rec.tech_failures,
+            'fare_cost': rec.fare_cost,
             'interval': rec.interval,
         })
 

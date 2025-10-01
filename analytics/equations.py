@@ -153,34 +153,31 @@ def iterative_regression(df: pd.DataFrame, y_col: str, candidate_x: list):
         }
 
 
-def build_integral_model(db: Session, years: List[int]):
+def build_integral_model(db: Session, years: List[int], selected_factors: List[str], iterative: bool = True):
     """Модель: интегральный показатель (y)"""
     data = get_data_1(db, years)
     df = pd.DataFrame(data)
-
-    corr_matrix = get_correl_matrix(db, years)
-    corr_with_y = corr_matrix["integrated_index"].drop("integrated_index")
-    candidates = corr_with_y[abs(corr_with_y) >= 0.199].index.tolist()
-
     y_data = get_y_data_from_db(db, years)
     df["integrated_index"] = y_data.values
 
-    return iterative_regression(df, "integrated_index", candidates)
+    if iterative:
+        return iterative_regression(df, "integrated_index", selected_factors)
+    else:
+        return single_step_regression(df, "integrated_index", selected_factors)
 
 
-def build_interval_model(db: Session, years: List[int]):
+def build_interval_model(db: Session, years: List[int], selected_factors: List[str], iterative: bool = True):
     """Модель: интервал (y)"""
     data = get_data_2(db, years)
     df = pd.DataFrame(data)
-
-    corr_matrix = get_second_correl_matrix(db, years)
-    corr_with_y = corr_matrix["interval"].drop("interval")
-    candidates = corr_with_y[abs(corr_with_y) >= 0.2].index.tolist()
-
     y_data = get_y_data_from_db_interval(db, years)
     df["interval"] = y_data.values
 
-    return iterative_regression(df, "interval", candidates)
+    if iterative:
+        return iterative_regression(df, "interval", selected_factors)
+    else:
+        return single_step_regression(df, "interval", selected_factors)
+
 
 def get_y_data_from_db(db, years):
     """Получаем реальные значения integrated_index из базы данных"""
@@ -206,6 +203,38 @@ def get_y_data_from_db_interval(db, years):
     print(f"Y данные (interval) из БД: {y_data.values}")
     return y_data
 
+def single_step_regression(df: pd.DataFrame, y_col: str, candidate_x: list):
+    """Обычная регрессия без исключения факторов"""
+    X = sm.add_constant(df[candidate_x])
+    y = df[y_col]
+    model = sm.OLS(y, X).fit()
+
+    n = len(df)
+    m = len(candidate_x)
+    dfree = n - m - 1
+
+    if 1 <= dfree <= len(t_criteria_list):
+        t_crit = t_criteria_list[dfree - 1]
+    else:
+        t_crit = t_criteria_list[-1]
+
+    f_fact = model.fvalue
+    k1 = len(candidate_x)
+    k2 = n - k1 - 1
+    f_crit = F_CRITICAL_VALUES.get(k1, {}).get(k2, None)
+
+    return {
+        "equation": model.params.to_dict(),
+        "t_values": model.tvalues.to_dict(),
+        "f_fact": f_fact,
+        "f_crit": f_crit,
+        "r2": model.rsquared,
+        "removed": [],
+        "final_factors": candidate_x,
+        "model": model
+    }
+
+
 if __name__ == "__main__":
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
@@ -216,9 +245,9 @@ if __name__ == "__main__":
     data_records = get_all_data(db)
     years = [record.year for record in data_records]
 
-    integral_model = build_integral_model(db, years)
+    integral_model = build_integral_model(db, years, ["failures_1", "interval"])
     print_regression_result("Модель интегрального показателя", "integrated_index", integral_model)
 
-    interval_model = build_interval_model(db, years)
+    interval_model = build_interval_model(db, years, ["failures_3", "tech_failures"])
     print_regression_result("Модель интервала", "interval", interval_model)
 
