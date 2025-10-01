@@ -16,6 +16,25 @@ def generate_key():
     return Fernet.generate_key()
 
 
+def update_forecasts(new_integral=None, new_interval=None, filename=Path(__file__).parent.parent.absolute()
+                                                                    / 'data/forecasts.json'):
+    if os.path.exists(filename):
+        with open(filename, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+    else:
+        data = {}
+
+    if new_integral is not None:
+        data["integral"] = new_integral
+
+    if new_interval is not None:
+        data["interval"] = new_interval
+
+    with open(filename, 'w', encoding='utf-8') as file:
+        json.dump(data, file, ensure_ascii=False, indent=2)
+
+    return data
+
 def get_session_path():
     app_data_dir = Path.home() / ".mcc_app"
     app_data_dir.mkdir(exist_ok=True)

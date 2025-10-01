@@ -8,6 +8,7 @@ from PySide6.QtCore import Qt
 
 from analytics.predict import calculate_final_predict
 from analytics.ryab import calculate, normalize_data, get_data
+from controllers.crud import update_forecasts
 from controllers.data_crud import get_all_data_dataframe
 from libs.database import get_db
 from controllers.analysis_crud import save_analysis_result
@@ -29,15 +30,15 @@ class ProkofievWindow(QWidget):
 
         # Кнопка расчета
         calc_btn = QPushButton("Рассчитать первую модель")
-        calc_btn.clicked.connect(self.calculate_equation)
+        calc_btn.clicked.connect(self.calculate_first_equation)
         calc_btn.setStyleSheet("background: #2196F3; color: white; padding: 10px;")
         layout.addWidget(calc_btn)
 
-        result_label = QLabel("Точечный прогноз среднесуточного интервала по модели: ")
-        self.result_label = result_label
-        self.result_label.setAlignment(Qt.AlignCenter)
-        self.result_label.setStyleSheet("font-size: 18px; font-weight: bold; margin: 10px;")
-        layout.addWidget(result_label)
+        result_label_first = QLabel("Точечный прогноз по 1й модели: ")
+        self.result_label_first = result_label_first
+        self.result_label_first.setAlignment(Qt.AlignCenter)
+        self.result_label_first.setStyleSheet("font-size: 18px; font-weight: bold; margin: 10px;")
+        layout.addWidget(result_label_first)
 
         # Кнопка расчета
         calc_btn = QPushButton("Рассчитать ср.сут. интервал")
@@ -59,18 +60,37 @@ class ProkofievWindow(QWidget):
 
 
     def calculate_equation(self):
-        """Расчет интегрального показателя"""
+        """Расчет интервального показателя"""
         try:
             db = next(get_db())
             with open(Path(__file__).parent.parent.absolute() / 'data/interval.pkl', 'rb') as file:
                 loaded_dict = pickle.load(file)
+            predict = calculate_final_predict(db, loaded_dict)
             self.result_label.setText("Точечный прогноз среднесуточного интервала по модели: " +
-                                      str(calculate_final_predict(db, loaded_dict)))
+                                      str(predict))
+            update_forecasts(new_interval=predict)
 
         except Exception as e:
             QMessageBox.warning(self, "Ошибка", f"Ошибка расчета: {str(e)}")
             import traceback
             print(traceback.format_exc())
+
+    def calculate_first_equation(self):
+        """Расчет интегрального показателя"""
+        try:
+            db = next(get_db())
+            with open(Path(__file__).parent.parent.absolute() / 'data/integral.pkl', 'rb') as file:
+                loaded_dict = pickle.load(file)
+            predict = calculate_final_predict(db, loaded_dict)
+            self.result_label_first.setText("Точечный прогноз по 1й модели: " +
+                                      str(predict))
+            update_forecasts(new_integral=predict)
+
+        except Exception as e:
+            QMessageBox.warning(self, "Ошибка", f"Ошибка расчета: {str(e)}")
+            import traceback
+            print(traceback.format_exc())
+
 
     def display_results(self, results, weights):
         pass
