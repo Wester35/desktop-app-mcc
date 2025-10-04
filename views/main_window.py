@@ -1,5 +1,7 @@
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QWidget, QLabel, QMessageBox, QLineEdit, QApplication
+
+from analytics.graphics import plot_regression_diagnostics
 from ui.ui_main import Ui_MainWindow
 from views.analytics_window import AnalyticsWindow
 from views.app_manager import app_manager
@@ -53,11 +55,19 @@ class MainWindow(QWidget):
         self.ui.profile_btn.clicked.connect(self.open_profile_window)
         self.ui.integral_window.clicked.connect(self.open_integral_window)
         self.ui.interval_window.clicked.connect(self.open_interval_window)
+        self.ui.integral_charts.clicked.connect(self.open_integral_charts)
+        self.ui.interval_charts.clicked.connect(self.open_interval_charts)
 
     def open_profile_window(self):
         if self.profile_window is None:
             self.profile_window = ProfileWindow(self.user_id, self.is_admin)
         self.profile_window.show()
+
+    def open_integral_charts(self):
+        plot_regression_diagnostics("integral")
+
+    def open_interval_charts(self):
+        plot_regression_diagnostics("interval")
 
     def open_integral_window(self):
         if self.integral_window is None:

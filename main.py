@@ -43,8 +43,10 @@ class MainApp:
                     first_name="",
                     middle_name="",
                     phone="",
-                    login=getenv('login'),
-                    password=getenv('password'),
+                    # login=getenv('login'),
+                    # password=getenv('password'),
+                    login="admin",
+                    password="admin",
                     is_admin=True
                 )
                 print("Администратор успешно инициализирован")
