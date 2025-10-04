@@ -29,9 +29,9 @@
   <widget class="QPushButton" name="pushButton_2">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>30</y>
-     <width>131</width>
+     <x>280</x>
+     <y>240</y>
+     <width>211</width>
      <height>41</height>
     </rect>
    </property>
@@ -55,9 +55,9 @@
   <widget class="QPushButton" name="analytics_btn">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>100</y>
-     <width>211</width>
+     <x>170</x>
+     <y>30</y>
+     <width>171</width>
      <height>41</height>
     </rect>
    </property>
@@ -69,7 +69,7 @@
    <property name="geometry">
     <rect>
      <x>280</x>
-     <y>240</y>
+     <y>170</y>
      <width>211</width>
      <height>41</height>
     </rect>
@@ -82,7 +82,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>240</y>
+     <y>170</y>
      <width>211</width>
      <height>41</height>
     </rect>
@@ -94,8 +94,8 @@
   <widget class="QPushButton" name="interval_charts">
    <property name="geometry">
     <rect>
-     <x>280</x>
-     <y>310</y>
+     <x>20</x>
+     <y>240</y>
      <width>211</width>
      <height>41</height>
     </rect>
@@ -121,7 +121,7 @@
    <property name="geometry">
     <rect>
      <x>280</x>
-     <y>170</y>
+     <y>100</y>
      <width>211</width>
      <height>41</height>
     </rect>
@@ -134,7 +134,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>170</y>
+     <y>100</y>
      <width>211</width>
      <height>41</height>
     </rect>
