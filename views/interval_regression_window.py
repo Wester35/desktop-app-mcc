@@ -94,7 +94,7 @@ class IntervalRegressionWindow(QWidget):
 
         result = build_interval_model(self.db, self.years, selected, iterative=iterative)
 
-        with open(Path(__file__).parent.parent.absolute() / 'data/interval.pkl', 'wb') as file:
+        with open(Path.home() / "AppData" / "Local" / "DesktopAppMCC" / 'data/interval.pkl', 'wb') as file:
             pickle.dump(result, file)
 
         output_lines = []

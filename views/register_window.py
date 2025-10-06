@@ -8,7 +8,7 @@ from views.app_manager import app_manager
 
 
 class Register(QWidget):
-    def __init__(self):
+    def __init__(self, login):
         super().__init__()
 
         self.setAttribute(Qt.WA_DeleteOnClose)
@@ -17,7 +17,6 @@ class Register(QWidget):
         self.ui = RegisterUI()
         self.ui.setupUi(self)
         self.connect_signals()
-
 
         self.setWindowIcon(QPixmap("ui/resources/app_icon.png"))
         self.background = QLabel(self.ui.frame_2)
@@ -31,6 +30,11 @@ class Register(QWidget):
         self.ui.checkPassword.setCheckable(True)
         self.ui.checkPassword_2.setText("👁️‍🗨️")
         self.ui.checkPassword_2.setCheckable(True)
+
+        if(str(login) != "admin"):
+            self.ui.checkBox.setCheckable(False)
+        else:
+            self.ui.checkBox.setCheckable(True)
 
 
     def connect_signals(self):

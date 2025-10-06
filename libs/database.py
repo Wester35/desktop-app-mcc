@@ -6,9 +6,9 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 Base = declarative_base()
 
 def get_db_path():
-    project_root = Path(__file__).parent.parent.absolute()
+    project_root = Path.home() / "AppData" / "Local" / "DesktopAppMCC"
     data_dir = project_root / "data"
-    data_dir.mkdir(exist_ok=True)
+    data_dir.mkdir(parents=True, exist_ok=True)
 
     return data_dir / "app.db"
 

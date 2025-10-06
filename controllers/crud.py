@@ -16,7 +16,7 @@ def generate_key():
     return Fernet.generate_key()
 
 
-def update_forecasts(new_integral=None, new_interval=None, filename=Path(__file__).parent.parent.absolute()
+def update_forecasts(new_integral=None, new_interval=None, filename=Path.home() / "AppData" / "Local" / "DesktopAppMCC"
                                                                     / 'data/forecasts.json'):
     if os.path.exists(filename):
         with open(filename, 'r', encoding='utf-8') as file:
@@ -190,7 +190,6 @@ def check_existing_admin():
 
 
 def get_user_data(user_id):
-    """Получение данных пользователя по ID"""
     session = SessionLocal()
     try:
         user = session.query(User).filter(User.id == user_id).first()
@@ -215,7 +214,6 @@ def get_user_data(user_id):
 
 
 def update_user_password(user_id, current_password, new_password):
-    """Обновление пароля пользователя"""
     session = SessionLocal()
     try:
         user = session.query(User).filter(User.id == user_id).first()
@@ -242,7 +240,6 @@ def update_user_password(user_id, current_password, new_password):
 
 
 def get_user_full_name(user_id):
-    """Получение полного имени пользователя"""
     session = SessionLocal()
     try:
         user = session.query(User).filter(User.id == user_id).first()

@@ -93,7 +93,7 @@ class IntegralRegressionWindow(QWidget):
         iterative = self.auto_step_checkbox.isChecked()
 
         result = build_integral_model(self.db, self.years, selected, iterative=iterative)
-        with open(Path(__file__).parent.parent.absolute() / 'data/integral.pkl', 'wb') as file:
+        with open(Path.home() / "AppData" / "Local" / "DesktopAppMCC" / 'data/integral.pkl', 'wb') as file:
             pickle.dump(result, file)
         # Перенаправляем красивый вывод в QTextEdit
         output_lines = []

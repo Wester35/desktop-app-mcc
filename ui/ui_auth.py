@@ -141,7 +141,7 @@ class Ui_Authorization(object):
         self.passwordEdit.setEchoMode(QLineEdit.EchoMode.Password)
         self.checkPassword = QPushButton(self.frame)
         self.checkPassword.setObjectName(u"checkPassword")
-        self.checkPassword.setGeometry(QRect(300, 220, 31, 31))
+        self.checkPassword.setGeometry(QRect(300, 232, 31, 31))
         self.checkBox = QCheckBox(self.frame)
         self.checkBox.setObjectName(u"checkBox")
         self.checkBox.setGeometry(QRect(20, 330, 231, 20))

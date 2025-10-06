@@ -5,7 +5,7 @@ from analytics.graphics import plot_regression_diagnostics
 from ui.ui_main import Ui_MainWindow
 from views.analytics_window import AnalyticsWindow
 from views.app_manager import app_manager
-from controllers.crud import delete_user_session
+from controllers.crud import delete_user_session, get_user_data
 from views.data_input_window import DataInputWindow
 from views.integral_regression_window import IntegralRegressionWindow
 from views.interval_regression_window import IntervalRegressionWindow
@@ -64,10 +64,16 @@ class MainWindow(QWidget):
         self.profile_window.show()
 
     def open_integral_charts(self):
-        plot_regression_diagnostics("integral")
+        try:
+            plot_regression_diagnostics("integral")
+        except FileNotFoundError as e:
+            QMessageBox.warning(self, "Ошибка", f"Не выполнены предыдущие шаги!\n {e}")
 
     def open_interval_charts(self):
-        plot_regression_diagnostics("interval")
+        try:
+            plot_regression_diagnostics("interval")
+        except FileNotFoundError as e:
+            QMessageBox.warning(self, "Ошибка", f"Не выполнены предыдущие шаги!\n {e}")
 
     def open_integral_window(self):
         if self.integral_window is None:
@@ -101,8 +107,13 @@ class MainWindow(QWidget):
         self.is_admin = is_admin
 
     def show_register_window(self):
-        self.register_window = Register()
-        self.register_window.show()
+        try:
+            data=get_user_data(self.user_id)
+            self.register_window = Register(data['login'])
+            print(data['login'])
+            self.register_window.show()
+        except Exception:
+            print("Ошибка БД")
 
     def logout(self):
         self.ui.pushButton.hide()

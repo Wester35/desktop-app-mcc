@@ -6,84 +6,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>512</width>
-    <height>383</height>
+    <width>502</width>
+    <height>365</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainApp</string>
   </property>
-  <widget class="QPushButton" name="pushButton">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>310</y>
-     <width>211</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Регистрация</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButton_2">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>240</y>
-     <width>211</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Выход с аккаунта</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="data_input_btn">
-   <property name="geometry">
-    <rect>
-     <x>360</x>
-     <y>30</y>
-     <width>131</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Ввод данных</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="analytics_btn">
-   <property name="geometry">
-    <rect>
-     <x>170</x>
-     <y>30</y>
-     <width>171</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Интегральные показатели</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="prokofiev_button">
-   <property name="geometry">
-    <rect>
-     <x>280</x>
-     <y>170</y>
-     <width>211</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Прогноз ср./сут. интервала</string>
-   </property>
-  </widget>
+  <property name="styleSheet">
+   <string notr="true">QFrame
+{
+	border-radius:10px;
+	background-color: transparent;
+	border: 3px solid black;
+}</string>
+  </property>
   <widget class="QPushButton" name="integral_charts">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>170</y>
-     <width>211</width>
+     <x>30</x>
+     <y>230</y>
+     <width>181</width>
      <height>41</height>
     </rect>
    </property>
@@ -94,9 +37,9 @@
   <widget class="QPushButton" name="interval_charts">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>240</y>
-     <width>211</width>
+     <x>30</x>
+     <y>280</y>
+     <width>181</width>
      <height>41</height>
     </rect>
    </property>
@@ -104,12 +47,81 @@
     <string>Ср./сут. графики</string>
    </property>
   </widget>
+  <widget class="QFrame" name="frame">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>20</y>
+     <width>221</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Shape::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Shadow::Raised</enum>
+   </property>
+  </widget>
+  <widget class="QFrame" name="frame_2">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>20</y>
+     <width>241</width>
+     <height>231</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#frame
+{
+	border-radius:10px;
+	background-color: transparent;
+	border: 3px solid black;
+}</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Shape::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Shadow::Raised</enum>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="prokofiev_button">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>180</y>
+     <width>181</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Прогноз ср./сут. интервала</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_2">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>90</y>
+     <width>181</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Выход с аккаунта</string>
+   </property>
+  </widget>
   <widget class="QPushButton" name="profile_btn">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>30</y>
-     <width>131</width>
+     <x>30</x>
+     <y>40</y>
+     <width>181</width>
      <height>41</height>
     </rect>
    </property>
@@ -117,32 +129,132 @@
     <string>Профиль</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="interval_window">
+  <widget class="QPushButton" name="data_input_btn">
    <property name="geometry">
     <rect>
-     <x>280</x>
-     <y>100</y>
-     <width>211</width>
+     <x>270</x>
+     <y>40</y>
+     <width>201</width>
      <height>41</height>
     </rect>
    </property>
    <property name="text">
-    <string>Рассчет интервальной модели</string>
+    <string>Ввод данных</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="analytics_btn">
+   <property name="geometry">
+    <rect>
+     <x>270</x>
+     <y>90</y>
+     <width>201</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Интегральные показатели</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="interval_window">
+   <property name="geometry">
+    <rect>
+     <x>270</x>
+     <y>190</y>
+     <width>201</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Расчет интервальной модели</string>
    </property>
   </widget>
   <widget class="QPushButton" name="integral_window">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>100</y>
-     <width>211</width>
+     <x>270</x>
+     <y>140</y>
+     <width>201</width>
      <height>41</height>
     </rect>
    </property>
    <property name="text">
-    <string>Рассчет интегральной модели</string>
+    <string>Расчет интегральной модели</string>
    </property>
   </widget>
+  <widget class="QFrame" name="frame_3">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>160</y>
+     <width>221</width>
+     <height>181</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#frame
+{
+	border-radius:10px;
+	background-color: transparent;
+	border: 3px solid black;
+}</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Shape::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Shadow::Raised</enum>
+   </property>
+  </widget>
+  <widget class="QFrame" name="frame_4">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>260</y>
+     <width>241</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">#frame
+{
+	border-radius:10px;
+	background-color: transparent;
+	border: 3px solid black;
+}</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Shape::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Shadow::Raised</enum>
+   </property>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>201</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Регистрация</string>
+    </property>
+   </widget>
+  </widget>
+  <zorder>frame_3</zorder>
+  <zorder>frame_4</zorder>
+  <zorder>frame_2</zorder>
+  <zorder>frame</zorder>
+  <zorder>integral_charts</zorder>
+  <zorder>interval_charts</zorder>
+  <zorder>prokofiev_button</zorder>
+  <zorder>pushButton_2</zorder>
+  <zorder>profile_btn</zorder>
+  <zorder>data_input_btn</zorder>
+  <zorder>analytics_btn</zorder>
+  <zorder>interval_window</zorder>
+  <zorder>integral_window</zorder>
  </widget>
  <resources/>
  <connections/>

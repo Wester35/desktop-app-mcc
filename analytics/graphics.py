@@ -5,7 +5,7 @@ import mplcursors
 from pathlib import Path
 
 def plot_regression_diagnostics(pkl_name: str):
-    with open(Path(__file__).parent.parent.absolute() / str("data/" + pkl_name + ".pkl"), "rb") as f:
+    with open(Path.home() / "AppData" / "Local" / "DesktopAppMCC" /  str("data/" + pkl_name + ".pkl"), "rb") as f:
         result_dict = pickle.load(f)
 
     model = result_dict["model"]
