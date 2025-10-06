@@ -64,10 +64,16 @@ class MainWindow(QWidget):
         self.profile_window.show()
 
     def open_integral_charts(self):
-        plot_regression_diagnostics("integral")
+        try:
+            plot_regression_diagnostics("integral")
+        except FileNotFoundError as e:
+            QMessageBox.warning(self, "Ошибка", f"Не выполнены предыдущие шаги!\n {e}")
 
     def open_interval_charts(self):
-        plot_regression_diagnostics("interval")
+        try:
+            plot_regression_diagnostics("interval")
+        except FileNotFoundError as e:
+            QMessageBox.warning(self, "Ошибка", f"Не выполнены предыдущие шаги!\n {e}")
 
     def open_integral_window(self):
         if self.integral_window is None:
