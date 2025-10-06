@@ -5,7 +5,7 @@ from analytics.graphics import plot_regression_diagnostics
 from ui.ui_main import Ui_MainWindow
 from views.analytics_window import AnalyticsWindow
 from views.app_manager import app_manager
-from controllers.crud import delete_user_session
+from controllers.crud import delete_user_session, get_user_data
 from views.data_input_window import DataInputWindow
 from views.integral_regression_window import IntegralRegressionWindow
 from views.interval_regression_window import IntervalRegressionWindow
@@ -101,8 +101,13 @@ class MainWindow(QWidget):
         self.is_admin = is_admin
 
     def show_register_window(self):
-        self.register_window = Register()
-        self.register_window.show()
+        try:
+            data=get_user_data(self.user_id)
+            self.register_window = Register(data['login'])
+            print(data['login'])
+            self.register_window.show()
+        except Exception:
+            print("Ошибка БД")
 
     def logout(self):
         self.ui.pushButton.hide()
