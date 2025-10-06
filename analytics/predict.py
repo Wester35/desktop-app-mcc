@@ -1,6 +1,4 @@
 from sqlalchemy.orm import Session
-
-from analytics.equations import build_interval_model, build_integral_model
 from analytics.prokofiev import predict_prokofiev
 from libs.database import get_db
 

@@ -63,7 +63,7 @@ class ProkofievWindow(QWidget):
         """Расчет интервального показателя"""
         try:
             db = next(get_db())
-            with open(Path(__file__).parent.parent.absolute() / 'data/interval.pkl', 'rb') as file:
+            with open(Path.home() / "AppData" / "Local" / "DesktopAppMCC" / 'data/interval.pkl', 'rb') as file:
                 loaded_dict = pickle.load(file)
             predict = calculate_final_predict(db, loaded_dict)
             self.result_label.setText("Точечный прогноз среднесуточного интервала по модели: " +
@@ -79,7 +79,7 @@ class ProkofievWindow(QWidget):
         """Расчет интегрального показателя"""
         try:
             db = next(get_db())
-            with open(Path(__file__).parent.parent.absolute() / 'data/integral.pkl', 'rb') as file:
+            with open(Path.home() / "AppData" / "Local" / "DesktopAppMCC" / 'data/integral.pkl', 'rb') as file:
                 loaded_dict = pickle.load(file)
             predict = calculate_final_predict(db, loaded_dict)
             self.result_label_first.setText("Точечный прогноз по 1й модели: " +

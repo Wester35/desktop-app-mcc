@@ -16,7 +16,7 @@ def generate_key():
     return Fernet.generate_key()
 
 
-def update_forecasts(new_integral=None, new_interval=None, filename=Path(__file__).parent.parent.absolute()
+def update_forecasts(new_integral=None, new_interval=None, filename=Path.home() / "AppData" / "Local" / "DesktopAppMCC"
                                                                     / 'data/forecasts.json'):
     if os.path.exists(filename):
         with open(filename, 'r', encoding='utf-8') as file:

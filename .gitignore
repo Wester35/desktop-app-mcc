@@ -17,3 +17,5 @@ libs/.env
 data/
 analytics/__pycache__/
 .env
+dist/
+build/

@@ -227,7 +227,7 @@ font-size: 14px;
      <property name="geometry">
       <rect>
        <x>300</x>
-       <y>220</y>
+       <y>232</y>
        <width>31</width>
        <height>31</height>
       </rect>
