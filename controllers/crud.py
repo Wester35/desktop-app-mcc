@@ -190,7 +190,6 @@ def check_existing_admin():
 
 
 def get_user_data(user_id):
-    """Получение данных пользователя по ID"""
     session = SessionLocal()
     try:
         user = session.query(User).filter(User.id == user_id).first()
@@ -215,7 +214,6 @@ def get_user_data(user_id):
 
 
 def update_user_password(user_id, current_password, new_password):
-    """Обновление пароля пользователя"""
     session = SessionLocal()
     try:
         user = session.query(User).filter(User.id == user_id).first()
@@ -242,7 +240,6 @@ def update_user_password(user_id, current_password, new_password):
 
 
 def get_user_full_name(user_id):
-    """Получение полного имени пользователя"""
     session = SessionLocal()
     try:
         user = session.query(User).filter(User.id == user_id).first()

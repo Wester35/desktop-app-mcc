@@ -5,9 +5,7 @@ from datetime import datetime
 
 
 def save_analysis_result(db: Session, year: int, integrated_index: float):
-    """Сохранение результата анализа"""
     try:
-        # Удаляем старый результат если есть
         old_result = db.query(AnalysisResult).filter(AnalysisResult.year == year).first()
         if old_result:
             db.delete(old_result)
@@ -27,10 +25,8 @@ def save_analysis_result(db: Session, year: int, integrated_index: float):
 
 
 def get_analysis_results(db: Session):
-    """Получение всех результатов анализа"""
     return db.query(AnalysisResult).order_by(AnalysisResult.year).all()
 
 
 def get_last_analysis(db: Session):
-    """Получение последнего анализа"""
     return db.query(AnalysisResult).order_by(desc(AnalysisResult.created_at)).first()

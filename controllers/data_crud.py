@@ -6,7 +6,7 @@ import pandas as pd
 def create_mck_data(db: Session, year: int, failures_1: int, failures_2: int,
                    failures_3: int, train_losses: float, investments: float,
                    passengers_daily: int, tech_failures: int, fare_cost: float, interval: float):
-    """Создание новой записи данных МЦК"""
+    # Создание новой записи данных МЦК
     try:
         data = MCKData(
             year=year,
@@ -29,15 +29,12 @@ def create_mck_data(db: Session, year: int, failures_1: int, failures_2: int,
         raise e
 
 def get_all_data(db: Session):
-    """Получение всех данных"""
     return db.query(MCKData).order_by(MCKData.year).all()
 
 def get_data_by_year(db: Session, year: int):
-    """Получение данных по году"""
     return db.query(MCKData).filter(MCKData.year == year).first()
 
 def delete_data(db: Session, year: int):
-    """Удаление данных по году"""
     data = db.query(MCKData).filter(MCKData.year == year).first()
     if data:
         db.delete(data)
@@ -45,7 +42,6 @@ def delete_data(db: Session, year: int):
     return data
 
 def update_data(db: Session, year: int, **kwargs):
-    """Обновление данных"""
     data = db.query(MCKData).filter(MCKData.year == year).first()
     if data:
         for key, value in kwargs.items():
@@ -56,11 +52,8 @@ def update_data(db: Session, year: int, **kwargs):
 
 
 def get_all_data_dataframe(db: Session) -> pd.DataFrame:
-    """Получение всех данных в виде DataFrame"""
     try:
-        # Вариант 1: Через SQLAlchemy query (проще)
         data = db.query(MCKData).order_by(MCKData.year).all()
-        # Преобразуем в список словарей
         data_dicts = []
         for record in data:
             data_dicts.append({
