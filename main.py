@@ -100,6 +100,12 @@ class MainApp:
         else:
             QApplication.quit()
 
+    def closeEvent(self, event):
+        if self.session_was_saved:
+            self.app.quit()
+        else:
+            event.accept()
+
     def run(self):
         return self.app.exec()
 
