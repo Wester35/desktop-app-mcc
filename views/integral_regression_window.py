@@ -3,7 +3,7 @@ from pathlib import Path
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QPushButton, QTableWidget,
-    QTableWidgetItem, QCheckBox, QTextEdit, QHBoxLayout
+    QTableWidgetItem, QCheckBox, QTextEdit, QHBoxLayout, QMessageBox
 )
 from PySide6.QtCore import Qt
 import pandas as pd
@@ -19,8 +19,7 @@ class IntegralRegressionWindow(QWidget):
         super().__init__()
         self.db = next(get_db())
         data = get_all_data(self.db)
-        years = [record.year for record in data]
-        self.years = years
+        self.years = [record.year for record in data]
         self.checkboxes = {}
         self.cb_layout = None
         self.setup_ui()
@@ -29,7 +28,7 @@ class IntegralRegressionWindow(QWidget):
     def setup_ui(self):
         self.layout_main = QVBoxLayout()
 
-        title = QLabel("Регрессия: интегральный показатель")
+        title = QLabel("Матрица коллинеарности (интегральный показатель)")
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet("font-size: 18px; font-weight: bold; margin: 10px;")
         self.layout_main.addWidget(title)
@@ -61,53 +60,73 @@ class IntegralRegressionWindow(QWidget):
         self.resize(1000, 600)
         self.setWindowTitle("Регрессия интегрального показателя")
 
+    def show_warning(self, message: str):
+        """Показать окно-предупреждение"""
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle("Предупреждение")
+        msg.setText(message)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec()
+
     def load_corr_table(self):
-        """Загружаем корреляции с y, убираем факторы < 0.18 и отмечаем мультиколлинеарность"""
-        corr_matrix = get_correl_matrix(self.db, self.years)
+        """Загружаем и фильтруем матрицу коллинеарности"""
+        try:
+            corr_matrix = get_correl_matrix(self.db, self.years)
+        except Exception:
+            self.show_warning("⚠️ Не удалось получить данные корреляции. Возможно, не выполнены предыдущие шаги.")
+            self.corr_table.clear()
+            return
+
+        if "integrated_index" not in corr_matrix.index:
+            self.show_warning("⚠️ В данных отсутствует показатель 'integrated_index'. Проверьте этап расчёта данных.")
+            self.corr_table.clear()
+            return
+
+        # Берем строку зависимости по 'integrated_index'
         corr_with_y = corr_matrix.loc["integrated_index"].drop("integrated_index")
 
-        # фильтрация по 0.18
-        corr_with_y = corr_with_y[corr_with_y.abs() >= 0.18]
+        # фильтруем факторы по корреляции >= 0.18
+        kept_factors = corr_with_y[abs(corr_with_y) >= 0.18].index.tolist()
 
-        # словарь статусов
-        statuses = {f: "Ок" for f in corr_with_y.index}
+        # гарантируем наличие 'integrated_index' (ставим на первое место)
+        if "integrated_index" not in kept_factors:
+            kept_factors.insert(0, "integrated_index")
+        else:
+            kept_factors.remove("integrated_index")
+            kept_factors.insert(0, "integrated_index")
 
-        # проверяем пары факторов на мультиколлинеарность
-        factors = list(corr_with_y.index)
-        for i in range(len(factors)):
-            for j in range(i + 1, len(factors)):
-                f1, f2 = factors[i], factors[j]
-                corr_val = corr_matrix.loc[f1, f2]
+        if not kept_factors:
+            self.show_warning("⚠️ Нет факторов с корреляцией ≥ 0.18. Необходимо выполнить предыдущие шаги анализа.")
+            self.corr_table.clear()
+            return
 
-                if abs(corr_val) > 0.6:
-                    if abs(corr_with_y[f1]) >= abs(corr_with_y[f2]):
-                        statuses[f1] = "Мульти: сильнее"
-                        statuses[f2] = "Мульти: слабее"
-                    else:
-                        statuses[f1] = "Мульти: слабее"
-                        statuses[f2] = "Мульти: сильнее"
+        # формируем подматрицу
+        filtered_matrix = corr_matrix.loc[kept_factors, kept_factors]
 
-        # строим таблицу
-        self.corr_table.setColumnCount(3)
-        self.corr_table.setRowCount(len(corr_with_y))
-        self.corr_table.setHorizontalHeaderLabels(["Фактор", "Корреляция с y", "Статус"])
+        # вывод таблицы
+        self.corr_table.setRowCount(len(filtered_matrix))
+        self.corr_table.setColumnCount(len(filtered_matrix))
+        self.corr_table.setHorizontalHeaderLabels(filtered_matrix.columns.tolist())
+        self.corr_table.setVerticalHeaderLabels(filtered_matrix.index.tolist())
 
-        for i, (factor, value) in enumerate(corr_with_y.items()):
-            self.corr_table.setItem(i, 0, QTableWidgetItem(str(factor)))
-            self.corr_table.setItem(i, 1, QTableWidgetItem(f"{value:.4f}"))
-            self.corr_table.setItem(i, 2, QTableWidgetItem(statuses[factor]))
+        for i, row_factor in enumerate(filtered_matrix.index):
+            for j, col_factor in enumerate(filtered_matrix.columns):
+                value = filtered_matrix.loc[row_factor, col_factor]
+                item = QTableWidgetItem(f"{value:.3f}")
+                item.setTextAlignment(Qt.AlignCenter)
+                self.corr_table.setItem(i, j, item)
 
-        # пересоздаём чекбоксы
-        # сначала убираем старые
+        # пересоздаём чекбоксы (кроме integrated_index)
         for i in reversed(range(self.cb_layout.count())):
             widget = self.cb_layout.itemAt(i).widget()
             if widget:
                 widget.setParent(None)
-
         self.checkboxes.clear()
 
-        # добавляем новые чекбоксы для оставшихся факторов
-        for factor in corr_with_y.index:
+        for factor in kept_factors:
+            if factor == "integrated_index":
+                continue  # без чекбокса
             cb = QCheckBox(factor)
             self.checkboxes[factor] = cb
             self.cb_layout.addWidget(cb)
@@ -123,9 +142,13 @@ class IntegralRegressionWindow(QWidget):
 
         result = build_integral_model(self.db, self.years, selected, iterative=iterative)
 
-        with open(Path.home() / "AppData" / "Local" / "DesktopAppMCC" / 'data/integral.pkl', 'wb') as file:
+        # сохраняем результат
+        save_path = Path.home() / "AppData" / "Local" / "DesktopAppMCC" / 'data/integral.pkl'
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(save_path, 'wb') as file:
             pickle.dump(result, file)
 
+        # вывод результата
         output_lines = []
         output_lines.append("=== Результат регрессии ===")
         output_lines.append(f"Факторы: {', '.join(selected)}")

@@ -3,7 +3,7 @@ from pathlib import Path
 
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QLabel, QPushButton, QTableWidget,
-    QTableWidgetItem, QCheckBox, QTextEdit, QHBoxLayout
+    QTableWidgetItem, QCheckBox, QTextEdit, QHBoxLayout, QMessageBox
 )
 from PySide6.QtCore import Qt
 import pandas as pd
@@ -19,8 +19,7 @@ class IntervalRegressionWindow(QWidget):
         super().__init__()
         self.db = next(get_db())
         data = get_all_data(self.db)
-        years = [record.year for record in data]
-        self.years = years
+        self.years = [record.year for record in data]
         self.checkboxes = {}
         self.cb_layout = None
         self.setup_ui()
@@ -29,7 +28,7 @@ class IntervalRegressionWindow(QWidget):
     def setup_ui(self):
         self.layout_main = QVBoxLayout()
 
-        title = QLabel("Регрессия: среднесуточный интервал")
+        title = QLabel("Матрица коллинеарности (интервал)")
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet("font-size: 18px; font-weight: bold; margin: 10px;")
         self.layout_main.addWidget(title)
@@ -42,8 +41,9 @@ class IntervalRegressionWindow(QWidget):
         self.cb_layout = QHBoxLayout()
         self.layout_main.addLayout(self.cb_layout)
 
+        # Флажок авто-шаг
         self.auto_step_checkbox = QCheckBox("Автоматическое пошаговое исключение факторов")
-        self.auto_step_checkbox.setChecked(True)  # по умолчанию включено
+        self.auto_step_checkbox.setChecked(True)
         self.layout_main.addWidget(self.auto_step_checkbox)
 
         # Кнопка построения
@@ -60,51 +60,74 @@ class IntervalRegressionWindow(QWidget):
         self.resize(1000, 600)
         self.setWindowTitle("Регрессия интервала")
 
-    def load_corr_table(self):
-        """Загружаем таблицу корреляций (строка interval), фильтруем <0.18 и помечаем мультиколлинеарность"""
-        corr_matrix = get_second_correl_matrix(self.db, self.years)
+    def show_warning(self, message: str):
+        """Показать окно-предупреждение"""
+        msg = QMessageBox(self)
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle("Предупреждение")
+        msg.setText(message)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec()
 
-        # строка зависимой переменной (y = interval)
+    def load_corr_table(self):
+        """Загружаем и фильтруем матрицу коллинеарности"""
+        try:
+            corr_matrix = get_second_correl_matrix(self.db, self.years)
+        except Exception:
+            self.show_warning("⚠️ Не удалось получить данные корреляции. Возможно, не выполнены предыдущие шаги.")
+            self.corr_table.clear()
+            return
+
+        if "interval" not in corr_matrix.index:
+            self.show_warning("⚠️ В данных отсутствует показатель 'interval'. Проверьте этап ввода данных.")
+            self.corr_table.clear()
+            return
+
+        # Берем строку зависимости по 'interval'
         corr_with_y = corr_matrix.loc["interval"].drop("interval")
 
-        # фильтрация по 0.18
-        corr_with_y = corr_with_y[corr_with_y.abs() >= 0.18]
+        # фильтруем факторы по корреляции >= 0.18
+        kept_factors = corr_with_y[abs(corr_with_y) >= 0.18].index.tolist()
 
-        # словарь статусов
-        statuses = {f: "Ок" for f in corr_with_y.index}
+        # гарантируем наличие 'interval' (добавляем его обратно, если не вошёл)
+        if "interval" not in kept_factors:
+            kept_factors.insert(0, "interval")
+        else:
+            # если есть — перемещаем на первую позицию
+            kept_factors.remove("interval")
+            kept_factors.insert(0, "interval")
 
-        # проверяем пары факторов на мультиколлинеарность
-        factors = list(corr_with_y.index)
-        for i in range(len(factors)):
-            for j in range(i + 1, len(factors)):
-                f1, f2 = factors[i], factors[j]
-                corr_val = corr_matrix.loc[f1, f2]
-                if abs(corr_val) > 0.6:  # мультиколлинеарность
-                    if abs(corr_with_y[f1]) >= abs(corr_with_y[f2]):
-                        statuses[f1] = "Мульти: сильнее"
-                        statuses[f2] = "Мульти: слабее"
-                    else:
-                        statuses[f1] = "Мульти: слабее"
-                        statuses[f2] = "Мульти: сильнее"
+        if not kept_factors:
+            self.show_warning("⚠️ Нет факторов с корреляцией ≥ 0.18. Необходимо выполнить предыдущие шаги анализа.")
+            self.corr_table.clear()
+            return
 
-        # обновляем таблицу
-        self.corr_table.setColumnCount(3)
-        self.corr_table.setRowCount(len(corr_with_y))
-        self.corr_table.setHorizontalHeaderLabels(["Фактор", "Корреляция с y", "Статус"])
+        # формируем подматрицу
+        filtered_matrix = corr_matrix.loc[kept_factors, kept_factors]
 
-        for i, (factor, value) in enumerate(corr_with_y.items()):
-            self.corr_table.setItem(i, 0, QTableWidgetItem(str(factor)))
-            self.corr_table.setItem(i, 1, QTableWidgetItem(f"{value:.4f}"))
-            self.corr_table.setItem(i, 2, QTableWidgetItem(statuses[factor]))
+        # вывод таблицы
+        self.corr_table.setRowCount(len(filtered_matrix))
+        self.corr_table.setColumnCount(len(filtered_matrix))
+        self.corr_table.setHorizontalHeaderLabels(filtered_matrix.columns.tolist())
+        self.corr_table.setVerticalHeaderLabels(filtered_matrix.index.tolist())
 
-        # пересоздаём чекбоксы
+        for i, row_factor in enumerate(filtered_matrix.index):
+            for j, col_factor in enumerate(filtered_matrix.columns):
+                value = filtered_matrix.loc[row_factor, col_factor]
+                item = QTableWidgetItem(f"{value:.3f}")
+                item.setTextAlignment(Qt.AlignCenter)
+                self.corr_table.setItem(i, j, item)
+
+        # пересоздаём чекбоксы (кроме interval)
         for i in reversed(range(self.cb_layout.count())):
             widget = self.cb_layout.itemAt(i).widget()
             if widget:
                 widget.setParent(None)
         self.checkboxes.clear()
 
-        for factor in corr_with_y.index:
+        for factor in kept_factors:
+            if factor == "interval":
+                continue  # без чекбокса
             cb = QCheckBox(factor)
             self.checkboxes[factor] = cb
             self.cb_layout.addWidget(cb)
@@ -120,9 +143,13 @@ class IntervalRegressionWindow(QWidget):
 
         result = build_interval_model(self.db, self.years, selected, iterative=iterative)
 
-        with open(Path.home() / "AppData" / "Local" / "DesktopAppMCC" / 'data/interval.pkl', 'wb') as file:
+        # сохраняем результат
+        save_path = Path.home() / "AppData" / "Local" / "DesktopAppMCC" / 'data/interval.pkl'
+        save_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(save_path, 'wb') as file:
             pickle.dump(result, file)
 
+        # вывод результата
         output_lines = []
         output_lines.append("=== Результат регрессии ===")
         output_lines.append(f"Факторы: {', '.join(selected)}")

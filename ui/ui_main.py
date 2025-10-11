@@ -22,7 +22,9 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(502, 365)
+        MainWindow.resize(522, 374)
+        MainWindow.setMinimumSize(QSize(522, 374))
+        MainWindow.setMaximumSize(QSize(522, 374))
         MainWindow.setStyleSheet(u"QFrame\n"
 "{\n"
 "	border-radius:10px;\n"
@@ -43,7 +45,7 @@ class Ui_MainWindow(object):
         self.frame.setFrameShadow(QFrame.Shadow.Raised)
         self.frame_2 = QFrame(MainWindow)
         self.frame_2.setObjectName(u"frame_2")
-        self.frame_2.setGeometry(QRect(250, 20, 241, 231))
+        self.frame_2.setGeometry(QRect(250, 20, 261, 231))
         self.frame_2.setStyleSheet(u"#frame\n"
 "{\n"
 "	border-radius:10px;\n"
@@ -63,16 +65,16 @@ class Ui_MainWindow(object):
         self.profile_btn.setGeometry(QRect(30, 40, 181, 41))
         self.data_input_btn = QPushButton(MainWindow)
         self.data_input_btn.setObjectName(u"data_input_btn")
-        self.data_input_btn.setGeometry(QRect(270, 40, 201, 41))
+        self.data_input_btn.setGeometry(QRect(270, 40, 221, 41))
         self.analytics_btn = QPushButton(MainWindow)
         self.analytics_btn.setObjectName(u"analytics_btn")
-        self.analytics_btn.setGeometry(QRect(270, 90, 201, 41))
+        self.analytics_btn.setGeometry(QRect(270, 90, 221, 41))
         self.interval_window = QPushButton(MainWindow)
         self.interval_window.setObjectName(u"interval_window")
-        self.interval_window.setGeometry(QRect(270, 190, 201, 41))
+        self.interval_window.setGeometry(QRect(270, 190, 221, 41))
         self.integral_window = QPushButton(MainWindow)
         self.integral_window.setObjectName(u"integral_window")
-        self.integral_window.setGeometry(QRect(270, 140, 201, 41))
+        self.integral_window.setGeometry(QRect(270, 140, 221, 41))
         self.frame_3 = QFrame(MainWindow)
         self.frame_3.setObjectName(u"frame_3")
         self.frame_3.setGeometry(QRect(10, 160, 221, 181))
@@ -86,7 +88,7 @@ class Ui_MainWindow(object):
         self.frame_3.setFrameShadow(QFrame.Shadow.Raised)
         self.frame_4 = QFrame(MainWindow)
         self.frame_4.setObjectName(u"frame_4")
-        self.frame_4.setGeometry(QRect(250, 260, 241, 81))
+        self.frame_4.setGeometry(QRect(250, 260, 261, 81))
         self.frame_4.setStyleSheet(u"#frame\n"
 "{\n"
 "	border-radius:10px;\n"
@@ -97,7 +99,7 @@ class Ui_MainWindow(object):
         self.frame_4.setFrameShadow(QFrame.Shadow.Raised)
         self.pushButton = QPushButton(self.frame_4)
         self.pushButton.setObjectName(u"pushButton")
-        self.pushButton.setGeometry(QRect(20, 20, 201, 41))
+        self.pushButton.setGeometry(QRect(20, 20, 221, 41))
         self.frame_3.raise_()
         self.frame_4.raise_()
         self.frame_2.raise_()
@@ -121,13 +123,13 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainApp", None))
         self.integral_charts.setText(QCoreApplication.translate("MainWindow", u"\u0418\u043d\u0442\u0435\u0433\u0440\u0430\u043b\u044c\u043d\u044b\u0435 \u0433\u0440\u0430\u0444\u0438\u043a\u0438", None))
         self.interval_charts.setText(QCoreApplication.translate("MainWindow", u"\u0421\u0440./\u0441\u0443\u0442. \u0433\u0440\u0430\u0444\u0438\u043a\u0438", None))
-        self.prokofiev_button.setText(QCoreApplication.translate("MainWindow", u"\u041f\u0440\u043e\u0433\u043d\u043e\u0437 \u0441\u0440./\u0441\u0443\u0442. \u0438\u043d\u0442\u0435\u0440\u0432\u0430\u043b\u0430", None))
+        self.prokofiev_button.setText(QCoreApplication.translate("MainWindow", u"\u041f\u0440\u043e\u0433\u043d\u043e\u0437\u044b", None))
         self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"\u0412\u044b\u0445\u043e\u0434 \u0441 \u0430\u043a\u043a\u0430\u0443\u043d\u0442\u0430", None))
         self.profile_btn.setText(QCoreApplication.translate("MainWindow", u"\u041f\u0440\u043e\u0444\u0438\u043b\u044c", None))
         self.data_input_btn.setText(QCoreApplication.translate("MainWindow", u"\u0412\u0432\u043e\u0434 \u0434\u0430\u043d\u043d\u044b\u0445", None))
         self.analytics_btn.setText(QCoreApplication.translate("MainWindow", u"\u0418\u043d\u0442\u0435\u0433\u0440\u0430\u043b\u044c\u043d\u044b\u0435 \u043f\u043e\u043a\u0430\u0437\u0430\u0442\u0435\u043b\u0438", None))
-        self.interval_window.setText(QCoreApplication.translate("MainWindow", u"\u0420\u0430\u0441\u0447\u0435\u0442 \u0438\u043d\u0442\u0435\u0440\u0432\u0430\u043b\u044c\u043d\u043e\u0439 \u043c\u043e\u0434\u0435\u043b\u0438", None))
-        self.integral_window.setText(QCoreApplication.translate("MainWindow", u"\u0420\u0430\u0441\u0447\u0435\u0442 \u0438\u043d\u0442\u0435\u0433\u0440\u0430\u043b\u044c\u043d\u043e\u0439 \u043c\u043e\u0434\u0435\u043b\u0438", None))
+        self.interval_window.setText(QCoreApplication.translate("MainWindow", u"\u041c\u043e\u0434\u0435\u043b\u044c \u0441\u0440\u0435\u0434\u043d\u0435\u0441\u0443\u0442\u043e\u0447\u043d\u043e\u0433\u043e \u0438\u043d\u0442\u0435\u0440\u0432\u0430\u043b\u0430", None))
+        self.integral_window.setText(QCoreApplication.translate("MainWindow", u"\u041c\u043e\u0434\u0435\u043b\u044c \u0438\u043d\u0442\u0435\u0433\u0440\u0430\u043b\u044c\u043d\u043e\u0433\u043e \u043f\u043e\u043a\u0430\u0437\u0430\u0442\u0435\u043b\u044f", None))
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f", None))
     # retranslateUi
 
