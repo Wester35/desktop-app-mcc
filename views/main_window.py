@@ -1,8 +1,10 @@
 from PySide6.QtGui import QPixmap
-from PySide6.QtWidgets import QWidget, QLabel, QMessageBox, QLineEdit, QApplication
+from PySide6.QtWidgets import (QLabel, QMessageBox, QLineEdit, QApplication,
+                               QMainWindow, QDialog, QHBoxLayout, QVBoxLayout,
+                               QTextEdit, QPushButton)
 
 from analytics.graphics import plot_regression_diagnostics
-from ui.ui_main import Ui_MainWindow
+from ui.main_window_ui import Ui_MainWindow
 from views.analytics_window import AnalyticsWindow
 from views.app_manager import app_manager
 from controllers.crud import delete_user_session, get_user_data
@@ -14,7 +16,7 @@ from views.prokofiev_window import ProkofievWindow
 from views.register_window import Register
 
 
-class MainWindow(QWidget):
+class MainWindow(QMainWindow):
     def __init__(self,user_id, is_admin):
         super().__init__()
 
@@ -57,6 +59,8 @@ class MainWindow(QWidget):
         self.ui.interval_window.clicked.connect(self.open_interval_window)
         self.ui.integral_charts.clicked.connect(self.open_integral_charts)
         self.ui.interval_charts.clicked.connect(self.open_interval_charts)
+        self.ui.menu.aboutToShow.connect(self.show_user_guide)
+
 
     def open_profile_window(self):
         if self.profile_window is None:
@@ -130,3 +134,86 @@ class MainWindow(QWidget):
             QApplication.quit()
         else:
             event.accept()
+
+    def show_user_guide(self):
+        """Показывает справку по использованию программы"""
+        help_text = (
+            "РУКОВОДСТВО ПОЛЬЗОВАТЕЛЯ — DesktopAppMCC\n"
+            "=========================================\n\n"
+            "🔑 Авторизация\n"
+            "--------------\n"
+            "После установки и запуска приложения в окне авторизации требуется войти под учетными данными:\n"
+            "  • Логин: admin\n"
+            "  • Пароль: admin\n\n"
+            "После входа откроется главное окно с кнопками, открывающими различные разделы системы.\n"
+            "В окне «Профиль» можно изменить пароль и просмотреть данные учетной записи.\n\n"
+            "⚙️ Порядок работы при вычислениях\n"
+            "--------------------------------\n"
+            "1. Ввод данных.\n"
+            "2. Расчет интегральных показателей.\n"
+            "3. Построение интегральной модели.\n"
+            "4. Построение интервальной модели.\n\n"
+            "📊 Предварительный анализ (ДО построения моделей)\n"
+            "------------------------------------------------\n"
+            "На начальном этапе необходимо осуществить вычисление матрицы корреляции.\n"
+            "Далее отобрать те значения парных коэффициентов корреляции между ФАКТОРАМИ, которые больше 0.6.\n"
+            "Далее необходимо определить, какой из них не будет включен в модель.\n"
+            "Смотрим, у кого из них сильнее влияние на результативный показатель\n"
+            "(тоже по парному коэффициенту корреляции, но уже МЕЖДУ ФАКТОРОМ И ИГРЕКОМ).\n"
+            "Соответственно, в модель будет включен тот фактор, у кого корреляция с игреком больше.\n"
+            "Эта процедура осуществляется в ручном режиме самим исследователем.\n"
+            "После этого можно перейти к расчетам моделей.\n"
+            "\n\n"
+            "🧮 Инструкция по построению моделей\n"
+            "-----------------------------------\n"
+            "• Откройте соответствующее окно модели (Интегральная / Интервальная).\n"
+            "• Выберите нужные факторы галочками или используйте автоматический режим.\n"
+            "• Нажмите «Построить регрессию» для выполнения расчета.\n"
+            "• После расчета программа выведет уравнение регрессии, коэффициенты и статистические показатели:\n"
+            "  - R² — коэффициент детерминации (доля объясненной вариации).\n"
+            "  - Fфакт и Fкр — проверка статистической значимости модели.\n"
+            "  - t-значения — проверка значимости отдельных факторов.\n\n"
+            "📈 Просмотр графиков\n"
+            "--------------------\n"
+            "В разделе «Графики» доступны результаты визуализации регрессионных моделей:\n"
+            "  • Интегральные графики.\n"
+            "  • Среднесуточные графики.\n"
+            "Если отображается сообщение «Не выполнены предыдущие шаги» — выполните расчеты моделей заново.\n\n"
+            "🧾 Прогнозирование\n"
+            "------------------\n"
+            "Откройте окно «Прогнозы», чтобы просмотреть результаты моделей. Сами уравнения сохраняются скрытно.\n\n"
+            "👥 Работа с пользователями\n"
+            "--------------------------\n"
+            "• Новые пользователи регистрируются через кнопку «Регистрация».\n"
+            "• Главный администратор (логин admin) может добавлять других администраторов.\n"
+            "• Остальные администраторы могут регистрировать обычных пользователей.\n\n"
+            "🚪 Выход из системы\n"
+            "-------------------\n"
+            "• Кнопка «Выход» завершает текущую сессию и при необходимости удаляет сохранённые данные входа.\n"
+            "• При следующем запуске потребуется повторная авторизация.\n\n"
+            "----------------------------------------------\n"
+            "Приложение: DesktopAppMCC\n"
+            "Разработчик: Wester35\n"
+            "Версия: 1.0\n"
+        )
+
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Справка по программе")
+        dialog.resize(800, 600)
+
+        layout = QVBoxLayout(dialog)
+
+        text_edit = QTextEdit()
+        text_edit.setReadOnly(True)
+        text_edit.setPlainText(help_text)
+        layout.addWidget(text_edit)
+
+        # кнопка закрытия
+        btn_layout = QHBoxLayout()
+        ok_button = QPushButton("Закрыть")
+        ok_button.clicked.connect(dialog.accept)
+        btn_layout.addStretch()
+        btn_layout.addWidget(ok_button)
+        layout.addLayout(btn_layout)
+
+        dialog.exec()
