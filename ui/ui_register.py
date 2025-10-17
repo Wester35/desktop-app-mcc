@@ -24,7 +24,7 @@ class Ui_Registration(object):
             Registration.setObjectName(u"Registration")
         Registration.resize(441, 641)
         Registration.setMinimumSize(QSize(441, 641))
-        Registration.setMaximumSize(QSize(541, 641))
+        Registration.setMaximumSize(QSize(441, 641))
         Registration.setStyleSheet(u"*\n"
 "{\n"
 "	font-family:sans-serif;\n"
@@ -209,19 +209,19 @@ class Ui_Registration(object):
         self.label.setText(QCoreApplication.translate("Registration", u"\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044f", None))
         self.pushButton.setText(QCoreApplication.translate("Registration", u"\u0417\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u043e\u0432\u0430\u0442\u044c\u0441\u044f", None))
         self.usernameEdit.setText("")
-        self.usernameEdit.setPlaceholderText(QCoreApplication.translate("Registration", u"Username", None))
+        self.usernameEdit.setPlaceholderText(QCoreApplication.translate("Registration", u"\u041b\u043e\u0433\u0438\u043d", None))
         self.passwordEdit.setInputMask("")
         self.passwordEdit.setText("")
-        self.passwordEdit.setPlaceholderText(QCoreApplication.translate("Registration", u"Password", None))
+        self.passwordEdit.setPlaceholderText(QCoreApplication.translate("Registration", u"\u041f\u0430\u0440\u043e\u043b\u044c", None))
         self.checkPassword_2.setText("")
         self.fioEdit.setText("")
-        self.fioEdit.setPlaceholderText(QCoreApplication.translate("Registration", u"Full name", None))
+        self.fioEdit.setPlaceholderText(QCoreApplication.translate("Registration", u"\u0424\u0430\u043c\u0438\u043b\u0438\u044f \u0418\u043c\u044f \u041e\u0442\u0447\u0435\u0441\u0442\u0432\u043e", None))
         self.phoneEdit.setText("")
-        self.phoneEdit.setPlaceholderText(QCoreApplication.translate("Registration", u"Phone", None))
+        self.phoneEdit.setPlaceholderText(QCoreApplication.translate("Registration", u"\u0422\u0435\u043b\u0435\u0444\u043e\u043d", None))
         self.passwordEdit_2.setInputMask("")
         self.passwordEdit_2.setText("")
-        self.passwordEdit_2.setPlaceholderText(QCoreApplication.translate("Registration", u"Password again", None))
+        self.passwordEdit_2.setPlaceholderText(QCoreApplication.translate("Registration", u"\u041f\u043e\u0432\u0442\u043e\u0440\u0438\u0442\u0435 \u043f\u0430\u0440\u043e\u043b\u044c", None))
         self.checkPassword.setText("")
-        self.checkBox.setText(QCoreApplication.translate("Registration", u"Is admin?", None))
+        self.checkBox.setText(QCoreApplication.translate("Registration", u"\u042d\u0442\u043e \u0430\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0442\u043e\u0440?", None))
     # retranslateUi
 

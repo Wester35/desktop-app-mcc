@@ -18,7 +18,7 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>541</width>
+    <width>441</width>
     <height>641</height>
    </size>
   </property>
@@ -219,7 +219,7 @@ transform: scale(0.9);
       <string/>
      </property>
      <property name="placeholderText">
-      <string>Username</string>
+      <string>Логин</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="passwordEdit">
@@ -241,7 +241,7 @@ transform: scale(0.9);
       <enum>QLineEdit::EchoMode::Password</enum>
      </property>
      <property name="placeholderText">
-      <string>Password</string>
+      <string>Пароль</string>
      </property>
     </widget>
     <widget class="QPushButton" name="checkPassword_2">
@@ -270,7 +270,7 @@ transform: scale(0.9);
       <string/>
      </property>
      <property name="placeholderText">
-      <string>Full name</string>
+      <string>Фамилия Имя Отчество</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="phoneEdit">
@@ -286,7 +286,7 @@ transform: scale(0.9);
       <string/>
      </property>
      <property name="placeholderText">
-      <string>Phone</string>
+      <string>Телефон</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="passwordEdit_2">
@@ -308,7 +308,7 @@ transform: scale(0.9);
       <enum>QLineEdit::EchoMode::Password</enum>
      </property>
      <property name="placeholderText">
-      <string>Password again</string>
+      <string>Повторите пароль</string>
      </property>
     </widget>
     <widget class="QPushButton" name="checkPassword">
@@ -337,7 +337,7 @@ transform: scale(0.9);
       <bool>false</bool>
      </property>
      <property name="text">
-      <string>Is admin?</string>
+      <string>Это администратор?</string>
      </property>
     </widget>
     <zorder>label</zorder>

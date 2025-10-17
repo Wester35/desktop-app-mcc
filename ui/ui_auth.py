@@ -24,7 +24,7 @@ class Ui_Authorization(object):
             Authorization.setObjectName(u"Authorization")
         Authorization.resize(401, 501)
         Authorization.setMinimumSize(QSize(401, 501))
-        Authorization.setMaximumSize(QSize(501, 501))
+        Authorization.setMaximumSize(QSize(401, 501))
         Authorization.setStyleSheet(u"*\n"
 "{\n"
 "	font-family:sans-serif;\n"

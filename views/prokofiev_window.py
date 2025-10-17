@@ -22,26 +22,18 @@ class ProkofievWindow(QWidget):
     def setup_ui(self):
         layout = QVBoxLayout()
 
-        # Заголовок
-        # title = QLabel("Аналитический модуль - Метод Рябцева")
-        # title.setAlignment(Qt.AlignCenter)
-        # title.setStyleSheet("font-size: 18px; font-weight: bold; margin: 10px;")
-        # layout.addWidget(title)
-
-        # Кнопка расчета
-        calc_btn = QPushButton("Рассчитать первую модель")
+        calc_btn = QPushButton("Прогноз интегрального показателя")
         calc_btn.clicked.connect(self.calculate_first_equation)
         calc_btn.setStyleSheet("background: #2196F3; color: white; padding: 10px;")
         layout.addWidget(calc_btn)
 
-        result_label_first = QLabel("Точечный прогноз по 1й модели: ")
+        result_label_first = QLabel("Прогноз интегрального показателя: ")
         self.result_label_first = result_label_first
         self.result_label_first.setAlignment(Qt.AlignCenter)
         self.result_label_first.setStyleSheet("font-size: 18px; font-weight: bold; margin: 10px;")
         layout.addWidget(result_label_first)
 
-        # Кнопка расчета
-        calc_btn = QPushButton("Рассчитать ср.сут. интервал")
+        calc_btn = QPushButton("Прогноз среднесуточного интервала")
         calc_btn.clicked.connect(self.calculate_equation)
         calc_btn.setStyleSheet("background: #2196F3; color: white; padding: 10px;")
         layout.addWidget(calc_btn)
@@ -55,7 +47,7 @@ class ProkofievWindow(QWidget):
 
 
         self.setLayout(layout)
-        self.setWindowTitle("Рассчет ср./сут. интервала с помощью метода Прокофьева")
+        self.setWindowTitle("Прогноз интегрального показателя и ср./сут. интервала с помощью метода Прокофьева")
         self.resize(800, 200)
 
 
@@ -82,7 +74,7 @@ class ProkofievWindow(QWidget):
             with open(Path.home() / "AppData" / "Local" / "DesktopAppMCC" / 'data/integral.pkl', 'rb') as file:
                 loaded_dict = pickle.load(file)
             predict = calculate_final_predict(db, loaded_dict)
-            self.result_label_first.setText("Точечный прогноз по 1й модели: " +
+            self.result_label_first.setText("Прогноз интегрального показателя: " +
                                       str(predict))
             update_forecasts(new_integral=predict)
 
