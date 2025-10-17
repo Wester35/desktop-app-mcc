@@ -194,7 +194,7 @@ class MainWindow(QMainWindow):
             "----------------------------------------------\n"
             "Приложение: DesktopAppMCC\n"
             "Разработчик: Wester35\n"
-            "Версия: 1.0\n"
+            "Версия: 1.0.1\n"
         )
 
         dialog = QDialog(self)
