@@ -28,7 +28,7 @@ class IntervalRegressionWindow(QWidget):
     def setup_ui(self):
         self.layout_main = QVBoxLayout()
 
-        title = QLabel("Матрица коллинеарности (интервал)")
+        title = QLabel("Матрица корреляций (интервал)")
         title.setAlignment(Qt.AlignCenter)
         title.setStyleSheet("font-size: 18px; font-weight: bold; margin: 10px;")
         self.layout_main.addWidget(title)
@@ -70,7 +70,7 @@ class IntervalRegressionWindow(QWidget):
         msg.exec()
 
     def load_corr_table(self):
-        """Загружаем и фильтруем матрицу коллинеарности"""
+        """Загружаем и фильтруем матрицу корреляций"""
         try:
             corr_matrix = get_second_correl_matrix(self.db, self.years)
         except Exception:
@@ -168,6 +168,10 @@ class IntervalRegressionWindow(QWidget):
         output_lines.append("")
         output_lines.append(f"R² = {result['r2']:.4f}")
         output_lines.append(f"Fфакт = {result['f_fact']:.4f}, Fкр = {result['f_crit']}")
+        output_lines.append("")
+        t_crit = result.get("t_crit", None)
+        if t_crit:
+            output_lines.append(f"t критическое = {t_crit:.4f}")
         output_lines.append("")
         output_lines.append("Коэффициенты и t-значения:")
         for k, coef in result["equation"].items():

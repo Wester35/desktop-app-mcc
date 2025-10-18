@@ -60,10 +60,10 @@ def build_regression(df: pd.DataFrame, y_col: str, candidate_x: list):
 
 def iterative_regression(df: pd.DataFrame, y_col: str, candidate_x: list):
     """Итеративное исключение факторов по t-критерию (как в Excel)"""
+    global t_crit
     n = len(df)
     removed = []
     iteration = 1
-
     print(f"\nНачальные кандидаты: {candidate_x}")
 
     while candidate_x:
@@ -132,6 +132,7 @@ def iterative_regression(df: pd.DataFrame, y_col: str, candidate_x: list):
 
         return {
             "equation": final_model.params.to_dict(),
+            "t_crit": t_crit,
             "t_values": final_model.tvalues.to_dict(),
             "f_fact": f_fact,
             "f_crit": f_crit,
@@ -143,6 +144,7 @@ def iterative_regression(df: pd.DataFrame, y_col: str, candidate_x: list):
     else:
         return {
             "equation": {"const": y.mean()},
+            "t_crit": t_crit,
             "t_values": {},
             "f_fact": 0,
             "f_crit": None,
@@ -225,6 +227,7 @@ def single_step_regression(df: pd.DataFrame, y_col: str, candidate_x: list):
 
     return {
         "equation": model.params.to_dict(),
+        "t_crit": t_crit,
         "t_values": model.tvalues.to_dict(),
         "f_fact": f_fact,
         "f_crit": f_crit,
